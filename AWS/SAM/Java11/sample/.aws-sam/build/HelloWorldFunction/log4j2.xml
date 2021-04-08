@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+<!--            <LogstashLayout dateTimeFormatPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"-->
+<!--                            eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"-->
+<!--                            prettyPrintEnabled="true"-->
+<!--                            stackTraceEnabled="true"/>-->
+            <JsonLayout compact="true">
+                <KeyValuePair key="resources" value="${ctx:resources}"/>
+                <KeyValuePair key="path" value="${ctx:path}"/>
+
+                <KeyValuePair key="requestId" value="${ctx:path}"/>
+                <KeyValuePair key="apiId" value="${ctx:apiId}"/>
+                <KeyValuePair key="path" value="${ctx:path}"/>
+                <KeyValuePair key="stage" value="${ctx:stage}"/>
+                <KeyValuePair key="resourceId" value="${ctx:resourceId}"/>
+                <KeyValuePair key="resourcePath" value="${ctx:resourcePath}"/>
+
+                <KeyValuePair key="CloudFront-Forwarded-Proto" value="${ctx:CloudFront-Forwarded-Proto}"/>
+                <KeyValuePair key="User-Agent" value="${ctx:User-Agent}"/>
+                <KeyValuePair key="X-Amz-Cf-Id" value="${ctx:X-Amz-Cf-Id}"/>
+                <KeyValuePair key="X-Amzn-Trace-Id" value="${ctx:X-Amzn-Trace-Id}"/>
+                <KeyValuePair key="X-Forwarded-For" value="${ctx:X-Forwarded-For}"/>
+            </JsonLayout>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+    </Loggers>
+</Configuration>
