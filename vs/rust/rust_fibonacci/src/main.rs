@@ -1,13 +1,19 @@
 use std::env;
+use std::time::Instant;
 
 fn main () {
+    let start = Instant::now();
+    
     let args: Vec<String> = env::args().collect();
-    let input_num: i32 = args[1].parse().unwrap();
-    println!("{}", fib(input_num));
+    let input_num: u64 = args[1].parse().unwrap();
+    let result = fib(input_num);
+    
+    let duration = start.elapsed().as_nanos();
+    println!("startNs:[{:?}] elaspedNs:[{:?}] {:?}", start, duration, result);
 }
 
-
-fn fib(n: i32) -> u64 {
+// 93 max https://r-knott.surrey.ac.uk/Fibonacci/fibtable.html
+fn fib(n: u64) -> u64 {
     if n < 0 {
         panic!("{} is negative!", n);
     } else if n == 0 {
