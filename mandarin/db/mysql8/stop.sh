@@ -1,0 +1,1 @@
+docker ps -q |xargs docker stop
