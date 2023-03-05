@@ -1,0 +1,31 @@
+name: Build Windows Executable from https://github.com/ytdl-org/youtube-dl
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        repository: ytdl-org/youtube-dl
+
+    - name: Install dependencies
+      run: |
+        choco install python3
+        pip install -r requirements.txt
+
+    - name: Build executable
+      run: pyinstaller --onefile --noconsole --name youtube-dl.exe youtube_dl/__main__.py
+
+    - name: Upload executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: windows-executable
+        path: dist/youtube-dl.exe
