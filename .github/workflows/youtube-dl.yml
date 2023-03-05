@@ -17,10 +17,10 @@ jobs:
         quiet: true
         repository: ytdl-org/youtube-dl
 
-    - name: Install dependencies
-      run: |
-        choco install python3 --no-progress
-        #pip install -r requirements.txt
+    #- name: Install dependencies
+    #  run: |
+    #   choco install python3 --no-progress
+    #  pip install -r requirements.txt
 
     - name: Build executable
       run: pyinstaller --onefile --noconsole --name youtube-dl.exe youtube_dl/__main__.py
