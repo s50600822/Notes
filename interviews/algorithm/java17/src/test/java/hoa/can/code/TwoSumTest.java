@@ -9,9 +9,7 @@ import org.junit.jupiter.api.Test;
  */
 public class TwoSumTest
 {
-    /**
-     * Rigorous Test :-)
-     */
+
     @Test
     @DisplayName("2+7 = 9")
     public void test1() throws TwoSum.NoTwoSumSolutionFor {

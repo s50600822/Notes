@@ -7,11 +7,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 public class FindAllAnagramsInAStringTest {
-    /**
-     * Rigorous Test :-)
-     */
+
     @Test
-    @DisplayName("a")
+    @DisplayName("...")
     public void test1() {
 
         assertArrayEquals(

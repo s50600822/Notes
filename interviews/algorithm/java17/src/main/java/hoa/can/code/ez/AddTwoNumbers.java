@@ -1,10 +1,12 @@
 package hoa.can.code.ez;
 
+import hoa.can.code.ListNode;
+
 import java.util.Objects;
 
 //https://leetcode.com/problems/add-two-numbers/description/
 public class AddTwoNumbers {
-    public ListNode solve(ListNode l1, ListNode l2) {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
         return addTwoNumbers(l1, l2, 0);
     }
 
@@ -33,41 +35,5 @@ public class AddTwoNumbers {
             return current.next;
         }
         return null;
-    }
-
-    public static class ListNode {
-        int val;
-        ListNode next;
-
-        ListNode() {
-        }
-
-        ListNode(int val) {
-            this.val = val;
-        }
-
-        ListNode(int val, ListNode next) {
-            this.val = val;
-            this.next = next;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-
-            if (!(obj instanceof ListNode)) {
-                return false;
-            }
-
-            ListNode other = (ListNode) obj;
-            return this.val == other.val && Objects.equals(this.next, other.next);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.val, this.next);
-        }
     }
 }
