@@ -1,9 +1,6 @@
 name: Build Windows Executable from https://github.com/ytdl-org/youtube-dl
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
