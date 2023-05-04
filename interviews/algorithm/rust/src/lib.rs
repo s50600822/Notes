@@ -42,6 +42,43 @@ pub fn plus_one(digits: Vec<i32>) -> Vec<i32> {
     digits
 }
 
+// trap pee water https://leetcode.com/problems/trapping-rain-water/
+pub fn trap(height: Vec<i32>) -> i32 {
+    let n = height.len();
+    let mut left_max = vec![0; n];
+    let mut right_max = vec![0; n];
+    let mut max = 0;
+
+    for i in 0..n {
+        left_max[i] = max;
+        max = max.max(height[i]);
+    }
+
+    max = 0;
+
+    for i in (0..n).rev() {
+        right_max[i] = max;
+        max = max.max(height[i]);
+    }
+
+    let mut left = 0;
+    let mut right = n - 1;
+    let mut total_water = 0;
+
+    while left <= right {
+        if left_max[left] <= right_max[right] {
+            let water = left_max[left] - height[left];
+            total_water += water.max(0);
+            left += 1;
+        } else {
+            let water = right_max[right] - height[right];
+            total_water += water.max(0);
+            right -= 1;
+        }
+    }
+
+    total_water
+}
 
 #[cfg(test)]
 mod tests {
@@ -70,6 +107,15 @@ mod tests {
         assert_eq!(plus_one(vec![4, 3, 2, 1]), vec![4, 3, 2, 2]);
         assert_eq!(plus_one(vec![9]), vec![1, 0]);
         assert_eq!(plus_one(vec![9, 9]), vec![1, 0, 0]);
+    }
+
+    #[test]
+    fn test_trap_rain_water() {
+        assert_eq!(9, trap(vec![4,2,0,3,2,5]));
+        assert_eq!(6, trap(vec![0,1,0,2,1,0,1,3,2,1,2,1]));
+        assert_eq!(0, trap(vec![0,0,0,0,0,0,0,0,0]));
+        assert_eq!(0, trap(vec![1]));
+        assert_eq!(0, trap(vec![6,6,6]));
     }
 
     
