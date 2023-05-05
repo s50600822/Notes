@@ -117,6 +117,7 @@ mod tests {
         assert_eq!(0, trap(vec![1]));
         assert_eq!(0, trap(vec![6,6,6]));
         assert_eq!(0, trap(vec![2,3]));
+        assert_eq!(5, trap(vec![0, 1, 0, 2, 1, 0, 1, 3]));
     }
 
     
