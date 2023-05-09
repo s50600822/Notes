@@ -1,0 +1,39 @@
+Resources:
+  URLShortenerTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: URLShortener
+      AttributeDefinitions:
+        - AttributeName: ShortURL
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ShortURL
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  URLShortenerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: URLShortenerFunction
+      Runtime: python3.8
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+
+          dynamodb = boto3.resource('dynamodb')
+          table = dynamodb.Table('URLShortener')
+
+          def handler(event, context):
+              #tbc
+              short_url = generate_short_url()
+              long_url = event['long_url']
+              table.put_item(Item={'ShortURL': short_url, 'LongURL': long_url})
+
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps({'short_url': short_url})
+              }
