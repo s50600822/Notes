@@ -7,7 +7,7 @@ public class TrappingRainWater {
 
     public int trap(int[] height) {
         int w = height.length;
-        if(w ==0 || w <3)
+        if(w < 3)
             return 0;
         int[] r = new int[w];
         int[] l = new int[w];
