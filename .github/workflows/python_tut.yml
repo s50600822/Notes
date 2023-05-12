@@ -1,4 +1,4 @@
-name: Java tests
+name: Python tests
 on:
   push:
     branches: [main]
@@ -8,12 +8,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v2
         with:
-          java-version: 17
-          distribution: 'adopt'
+          python-version: '3.x'
       - name: Build and test
         run: |
-          cd interviews/algorithm/java17
-          ./mvnw test
+          cd interviews/algorithm/python3
+          python3 -m unittest discover -s . -p '*test.py'
