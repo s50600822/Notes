@@ -13,5 +13,5 @@ jobs:
           profile: minimal
       - name: Run tests
         run: |
-          cd interviews/algorithm/rust
+          cd interview_prep/algorithm/rust
           cargo test

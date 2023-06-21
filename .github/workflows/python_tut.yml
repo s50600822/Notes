@@ -14,5 +14,5 @@ jobs:
           python-version: '3.x'
       - name: Build and test
         run: |
-          cd interviews/algorithm/python3
+          cd interview_prep/algorithm/python3
           python3 -m unittest discover -s . -p '*test.py'

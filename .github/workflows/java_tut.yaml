@@ -15,5 +15,5 @@ jobs:
           distribution: 'adopt'
       - name: Build and test
         run: |
-          cd interviews/algorithm/java17
+          cd interview_prep/algorithm/java17
           ./mvnw test
