@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<!-- saved from url=(0109)https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/DEV-AWS-MO-Designing_DataLakes/exercise-2-kinesis.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Exercise 2: Building a Log-Analytics Solution with Amazon Kinesis</title>
+  <script src="./kinesis_log_analysis_files/clipboard.min.js"></script>
+  <script src="./kinesis_log_analysis_files/copybutton.js"></script>
+
+<style>
+    html, body, footer {
+        font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+        margin: 1em;
+    }
+
+    img:not(.clipboard){
+        max-width: 100%;
+        height: auto;
+        width: auto;
+    }
+
+    /* Copy buttons */
+    button.copybtn {
+        webkit-transition: opacity .3s ease-in-out;
+        -o-transition: opacity .3s ease-in-out;
+        transition: opacity .3s ease-in-out;
+        opacity: 0;
+        padding: 2px 6px;
+        position: absolute;
+        right: 4px;
+        top: 4px;
+    }
+    div.sourceCode:hover .copybtn, div.sourceCode .copybtn:focus {
+        opacity: .3;
+    }
+    div.sourceCode .copybtn:hover {
+        opacity: 1;
+    }
+    div.sourceCode {
+        position: relative;
+    }
+    .xmodule_display.xmodule_HtmlBlock ol {
+        padding: 0 0 0 2em !important;
+    }
+    .xmodule_display.xmodule_HtmlBlock ul {
+        padding: 0 0 0 2em !important;
+    }
+
+    code {
+        padding: 2px 4px !important;
+        background-color: #eee !important;
+        border-radius: 4px;
+    }
+    pre code {
+        padding: 9.5px !important;
+        background-color: #f5f5f5 !important;
+        display: block;
+        overflow-x: auto;
+        margin: 0 0 10px;
+        font-size: 13px;
+        line-height: 1.42857143;
+        word-break: break-all;
+        word-wrap: break-word;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        white-space: pre;
+    }
+    pre code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    pre code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    pre code span.at { color: #7d9029; } /* Attribute */
+    pre code span.bn { color: #40a070; } /* BaseN */
+    pre code span.bu { color: #06287e; } /* BuiltIn */
+    pre code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    pre code span.ch { color: #4070a0; } /* Char */
+    pre code span.cn { color: #880000; } /* Constant */
+    pre code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    pre code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    pre code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    pre code span.dt { color: #902000; } /* DataType */
+    pre code span.dv { color: #40a070; } /* DecVal */
+    pre code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    pre code span.ex { color: #06287e; } /* Extension */
+    pre code span.fl { color: #40a070; } /* Float */
+    pre code span.fu { color: #06287e; } /* Function */
+    pre code span.im { } /* Import */
+    pre code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    pre code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    pre code span.op { color: #666666; } /* Operator */
+    pre code span.ot { color: #007020; } /* Other */
+    pre code span.pp { color: #bc7a00; } /* Preprocessor */
+    pre code span.sc { color: #4070a0; } /* SpecialChar */
+    pre code span.ss { color: #bb6688; } /* SpecialString */
+    pre code span.st { color: #4070a0; } /* String */
+    pre code span.va { color: #19177c; } /* Variable */
+    pre code span.vs { color: #4070a0; } /* VerbatimString */
+    pre code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+    footer {
+        padding-top: 3em;
+        font-style: italic;
+        font-size: .9em;
+    }
+</style>
+</head><body data-new-gr-c-s-check-loaded="14.1113.0" data-gr-ext-installed="">
+<p><em>[version_1.0]</em></p>
+<div style="background-color: #FFD2D2; padding: 15px; margin-bottom: 25px">
+<h3>
+<span class="fa fa-info-circle"></span> Note
+</h3>
+<p>The exercises in this course will have an associated charge in your AWS account. In this exercise, you will create the following resources:</p>
+<ul>
+<li>Amazon Kinesis Data Firehose delivery streams</li>
+<li>Amazon Simple Storage Service (Amazon S3) buckets</li>
+<li>Amazon Kinesis data analytics application</li>
+<li>Amazon OpenSearch Service domain</li>
+<li>Amazon Elastic Compute Cloud (Amazon EC2) instance and AWS Identity and Access Management (IAM) role (created by AWS CloudFormation)</li>
+</ul>
+<p><strong>The final exercise task includes instructions to delete all the resources that you create for this exercise.</strong></p>
+<p>Familiarize yourself with <strong><a href="https://aws.amazon.com/kinesis/data-streams/pricing/" target="_blank">Amazon Kinesis Data Streams</a></strong>, <strong><a href="https://aws.amazon.com/s3/pricing/" target="_blank">Amazon S3 pricing</a></strong>, <strong><a href="https://aws.amazon.com/kinesis/data-firehose/pricing/" target="_blank">Amazon Kinesis Data Firehose</a></strong>, <strong><a href="https://aws.amazon.com/opensearch-service/pricing/" target="_blank">Amazon OpenSearch Service</a></strong>, and the <strong><a href="https://aws.amazon.com/free/" target="_blank">AWS Free Tier</a></strong>.</p>
+</div>
+<h1 id="exercise-2-building-a-log-analytics-solution-with-amazon-kinesis">Exercise 2: Building a log-analytics solution with Amazon Kinesis</h1>
+<p>Imagine that you are a systems administrator who is responsible for the health of a large, web-server cluster. As part of your duties, you need to constantly monitor the server access logs for anything unusual. Normally, you would send these logs to a log server and parse the data with your scripting skills. However, the cluster has grown exponentially larger within the last few months. It now requires a more robust solution to keep up with the demand. You are tasked with creating a log-analytics solution on AWS that is extremely scalable.</p>
+<p>In this exercise, you produce data with the Kinesis agent, which runs on an EC2 instance. The agent simulates one of the web servers in your organization’s large server farm. Then, you ingest some dummy access logs with Kinesis Data Firehose. You move those logs to Amazon S3. Then, you use Kinesis Data Analytics to get data and aggregate data points for Kinesis Data Analytics to output. You send the aggregated data to another Kinesis Data Firehose delivery stream that outputs the data to Amazon OpenSearch Service. Finally, you visualize the data with OpenSearch Dashboards. The following schematic provides an overview of your workflow:</p>
+<figure>
+<img src="./kinesis_log_analysis_files/image-20201012140313930.png" alt="Flowchart of exercise tasks"><figcaption>Flowchart of exercise tasks</figcaption>
+</figure>
+<h2 id="setting-up">Setting up</h2>
+<p>When you sign in to the AWS Management Console, you must first ensure that you have appropriate Identity and Access Management (IAM) users, roles, or policies to work with cloud resources. IAM ensures that only the right users have permissions to perform certain tasks. With IAM, you can securely control access to your account and set up granular permissions on an as-needed basis.</p>
+<p>In this exercise, you use the AWS CloudFormation template to configure backend resources. The AWS CloudFormation template is a JSON or YAML file that provisions some of the AWS services for your needs. We provide the template for you later in this section. Before you upload the template in AWS CloudFormation, you must create an IAM role with full administrative priviledges for CloudFormation based on the EC2 use case.</p>
+<ol type="1">
+<li><p>In the AWS Management Console, enter <strong>IAM</strong> in the search field. Choose <strong>IAM</strong> from the list.</p></li>
+<li><p>In the navigation pane, choose <strong>Roles</strong>.</p></li>
+<li><p>Choose <strong>Create role</strong>.</p></li>
+<li><p>For <strong>Trusted entity type</strong>, choose <strong>AWS service</strong>.</p></li>
+<li><p>For <strong>Use case</strong>, choose <strong>EC2</strong>.</p></li>
+<li><p>Choose <strong>Next</strong>.</p></li>
+<li><p>Under <strong>Permission policies</strong>, in the search field, enter <strong>CloudFormation</strong>.</p></li>
+<li><p>In the list of available options, select the AWS managed policy that provides full access to AWS CloudFormation. Choose <strong>Next</strong>.</p></li>
+<li><p>For <strong>Role name</strong>, enter <strong>CloudFormation</strong>.</p></li>
+<li><p>Choose <strong>Create role</strong>.</p></li>
+</ol>
+<p>With the new IAM role, you now have access to AWS CloudFormation. You can also use IAM roles to share temporary access with users who might need to access the AWS resources associated with your account. For more information about IAM, see <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html">What’s IAM</a>.</p>
+<p>Download the following CloudFormation template: <a href="https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/DEV-AWS-MO-Designing_DataLakes/downloads/exercise-2-kinesis.yml">exercise-2-kinesis.yml</a>. Follow the instructions to upload this template in AWS CloudFormation.</p>
+<p><strong>Note</strong>: If you have an existing virtual private cloud (VPC) with the Classless Inter-Domain Routing (CIDR) block <em>10.16.0.0/16</em>, you must edit the template and change its CIDR block.</p>
+<ol type="1">
+<li><p>In the search field of the AWS Management Console, enter <strong>CloudFormation</strong>. Choose <strong>CloudFormation</strong> from the list.</p></li>
+<li><p>At the top right of the console, make sure you are in the <strong>US East (N. Virginia) - us-east-1</strong> Region.</p></li>
+<li><p>Choose <strong>Create stack</strong> &gt; <strong>With new resources (standard)</strong>.</p></li>
+<li><p>Choose <strong>Upload a template file</strong>.</p></li>
+<li><p>Select <strong>Choose file</strong> and browse to where you downloaded the <code>exercise-2-kinesis</code> template.</p></li>
+<li><p>Select the file and choose <strong>Open</strong>.</p></li>
+<li><p>Choose <strong>Next</strong>.</p></li>
+<li><p>For <strong>Stack name</strong>, enter <code>exercise-2-kinesis</code>.</p></li>
+<li><p>Choose <strong>Next</strong>, and then choose <strong>Next</strong> again.</p></li>
+<li><p>Select the acknowledgement and choose <strong>Create stack</strong>.</p></li>
+</ol>
+<h2 id="task-1-creating-an-amazon-opensearch-service-cluster">Task 1: Creating an Amazon OpenSearch Service cluster</h2>
+<p>In this task, you create an Amazon OpenSearch Service cluster. OpenSearch Service performs interactive log analytics, real-time application monitoring, and more.</p>
+<ol type="1">
+<li><p>In the search field of the AWS Management Console, search for and open <strong>Amazon OpenSearch Service</strong>.</p></li>
+<li><p>Make sure that you are in the <strong>N. Virginia</strong> Region.</p></li>
+<li><p>Choose <strong>Create domain</strong> and configure the following settings:</p>
+<ul>
+<li><strong>Domain name</strong>: <code>web-log-summary</code></li>
+<li><strong>Deployment type</strong>: <em>Development and testing</em></li>
+<li><strong>Version</strong>: The latest version of <em>OpenSearch</em><br>
+</li>
+<li><strong>Data nodes</strong> &gt; <strong>Instance type</strong>: <em>m5.large.search</em></li>
+<li><strong>Network</strong>: <em>Public access</em> <strong>Note</strong>: You would typically want to run a production-level workload in a VPC. However, for testing purposes, you use <em>Public access</em>. A production cluster can have more restrictive policies, such as restricting IP addresses or hosting the cluster in a private subnet.</li>
+<li><strong>Fine-grained access control</strong>: <em>Enable fine-grained access control</em></li>
+<li><strong>Master user</strong>: <em>Create master user</em></li>
+<li><strong>Master username</strong>: <code>admin</code></li>
+<li><strong>Master password</strong> and <strong>Confirm master password</strong>: <code>#MasterPassword1@</code></li>
+<li><strong>Access policy</strong>: <em>Configure domain level access policy</em></li>
+</ul>
+<ol type="1">
+<li>In the <strong>Domain access policy</strong> section, choose the <strong>JSON</strong> tab and paste the following JavaScript Object Notation (JSON) code:</li>
+</ol>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json" id="codeblock0"><code class="sourceCode json"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-2" title="2">  <span class="dt">"Version"</span><span class="fu">:</span> <span class="st">"2012-10-17"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-3" title="3">  <span class="dt">"Statement"</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb1-4" title="4">    <span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-5" title="5">      <span class="dt">"Effect"</span><span class="fu">:</span> <span class="st">"Allow"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-6" title="6">      <span class="dt">"Principal"</span><span class="fu">:</span> <span class="fu">{</span></a>
+<a class="sourceLine" id="cb1-7" title="7">        <span class="dt">"AWS"</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb1-8" title="8">          <span class="st">"*"</span></a>
+<a class="sourceLine" id="cb1-9" title="9">        <span class="ot">]</span></a>
+<a class="sourceLine" id="cb1-10" title="10">      <span class="fu">},</span></a>
+<a class="sourceLine" id="cb1-11" title="11">      <span class="dt">"Action"</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb1-12" title="12">        <span class="st">"es:*"</span></a>
+<a class="sourceLine" id="cb1-13" title="13">      <span class="ot">]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb1-14" title="14">      <span class="dt">"Resource"</span><span class="fu">:</span> <span class="st">"arn:aws:es:us-east-1:&lt;FMI&gt;:domain/web-log-summary/*"</span></a>
+<a class="sourceLine" id="cb1-15" title="15">    <span class="fu">}</span></a>
+<a class="sourceLine" id="cb1-16" title="16">  <span class="ot">]</span></a>
+<a class="sourceLine" id="cb1-17" title="17"><span class="fu">}</span></a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock0"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div>
+<p>Replace the FMI in the JSON code with your account number. When you replace the FMI with your own value, make sure that you also delete the angle brackets (&lt;&gt;). You can find your account number in the top-right area of the console, next to the Region. It should have a format similar to <em>0000-0000-0000</em>. Remove the dashes before you save your changes. For example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode json" id="codeblock1"><code class="sourceCode json"><a class="sourceLine" id="cb2-1" title="1">      <span class="er">],</span></a>
+<a class="sourceLine" id="cb2-2" title="2">      <span class="er">"Resource":</span> <span class="er">"arn:aws:es:us-east-1:000000000000:domain/web-log-summary/*"</span></a>
+<a class="sourceLine" id="cb2-3" title="3">    <span class="er">}</span></a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock1"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>Choose <strong>Create</strong>. <em>To create a cluster may take 10 to 15 minutes</em>.</p></li>
+</ol>
+<h2 id="task-2-creating-the-first-amazon-kinesis-data-firehose-delivery-stream-and-the-amazon-s3-bucket">Task 2: Creating the first Amazon Kinesis Data Firehose delivery stream and the Amazon S3 bucket</h2>
+<p>In this task, you create an Amazon Kinesis Data Firehose delivery stream, which includes creating an Amazon S3 bucket. With Kinesis Data Firehose, you deliver real-time streaming data to Amazon S3.</p>
+<ol type="1">
+<li><p>In the search field of the AWS Management Console, search for and open <strong>Kinesis</strong>.</p></li>
+<li><p>Choose <strong>Kinesis Data Firehose</strong>, and choose <strong>Create delivery stream</strong>.</p></li>
+<li>Configure the following settings.
+<ul>
+<li><strong>Source</strong>: <em>Direct PUT</em></li>
+<li><strong>Destination</strong>: <em>Amazon S3</em></li>
+<li><strong>Delivery stream name</strong>: <code>web-log-ingestion-stream</code></li>
+<li><strong>Destination settings</strong>: <em>Create</em></li>
+</ul>
+<p>Choosing <strong>Create</strong> for <strong>Destination settings</strong> opens a separate browser tab so that you can create an S3 bucket.</p></li>
+<li><p>For <strong>Bucket name</strong>, enter a <em>unique</em> name.</p>
+<p>As an example, you can use the following naming convention and replace the FMI with your initials.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode json" id="codeblock2"><code class="sourceCode json"><a class="sourceLine" id="cb3-1" title="1"><span class="er">&lt;FMI&gt;-web-log-ingestion-bucket</span></a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock2"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div>
+<p>Example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode json" id="codeblock3"><code class="sourceCode json"><a class="sourceLine" id="cb4-1" title="1"><span class="er">emr-web-log-ingestion-bucket</span></a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock3"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>For <strong>Region</strong>, keep <strong>US East (N. Virginia) us-east-1</strong>. Your OpenSearch Service cluster and Kinesis streams are provisioned in this Region.</p></li>
+<li><p>Choose <strong>Create bucket</strong>.</p></li>
+<li><p>Switch back to the <strong>Kinesis Data Firehose</strong> console.</p></li>
+<li><p>Next to the <strong>S3 bucket</strong> box, choose <strong>Browse</strong> and select the S3 bucket that you created. If the bucket isn’t listed, choose the refresh icon.</p></li>
+<li><p>After you select the bucket, click <strong>Choose</strong>.</p></li>
+<li><p>Choose <strong>Create delivery stream</strong>. <em>This process can take up to 5 minutes to complete</em>.</p></li>
+</ol>
+<h2 id="task-3-installing-the-kinesis-agent">Task 3: Installing the Kinesis Agent</h2>
+<p>In this task, you install the Kinesis Agent on the EC2 instance. Kinesis Agent is a script that runs in the background to generate server access logs. You can look at the access logs in the <code>/tmp/logs</code> directory.</p>
+<ol type="1">
+<li><p>In the search field of the AWS Management Console, search for and open <strong>EC2</strong>.</p></li>
+<li><p>In the <strong>Resources</strong> pane, choose <strong>Instances (running)</strong>.</p>
+<p>A <em>Dummy Web Server</em> instance should already be running.</p></li>
+<li><p>Open the instance summary information of the <em>Dummy Web Server</em> instance by choosing its <strong>Instance ID</strong>.</p></li>
+<li><p>Choose <strong>Connect</strong>.</p></li>
+<li><p>In <strong>Connect to instance</strong>, choose the <strong>Session Manager</strong> tab and choose <strong>Connect</strong>.</p>
+<p>This action loads a session, and you should be presented with a shell prompt: <code>sh-4.2$</code>.</p></li>
+<li><p>In the session terminal, install the Kinesis Agent on the instance by running the following command:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash" id="codeblock4"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1"><span class="fu">sudo</span> yum install –y aws-kinesis-agent</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock4"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+</ol>
+<p>It may take a minute for the command to start installing the Kinesis Agent.</p>
+<ol type="1">
+<li><p>Confirm that you want to install the required packages by pressing <strong>Y</strong> on your keyboard.</p>
+<p>Next, you will edit the <code>agent.json</code> file by replacing the value of the <strong>deliveryStream</strong> key with name of the delivery stream that you created.</p></li>
+<li><p>In your text editor of choice, open the <code>/etc/aws-kinesis/agent.json</code> file. The following example uses Vim:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash" id="codeblock5"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="fu">sudo</span> vim /etc/aws-kinesis/agent.json</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock5"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>View the current contents of <code>agent.json</code>, which should be similar to this example:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode json" id="codeblock6"><code class="sourceCode json"><a class="sourceLine" id="cb7-1" title="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb7-2" title="2">  <span class="dt">"cloudwatch.emitMetrics"</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-3" title="3">  <span class="dt">"kinesis.endpoint"</span><span class="fu">:</span> <span class="st">""</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-4" title="4">  <span class="dt">"firehose.endpoint"</span><span class="fu">:</span> <span class="st">""</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-5" title="5"></a>
+<a class="sourceLine" id="cb7-6" title="6">  <span class="dt">"flows"</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb7-7" title="7">    <span class="fu">{</span></a>
+<a class="sourceLine" id="cb7-8" title="8">      <span class="dt">"filePattern"</span><span class="fu">:</span> <span class="st">"/tmp/app.log*"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-9" title="9">      <span class="dt">"kinesisStream"</span><span class="fu">:</span> <span class="st">"yourkinesisstream"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-10" title="10">      <span class="dt">"partitionKeyOption"</span><span class="fu">:</span> <span class="st">"RANDOM"</span></a>
+<a class="sourceLine" id="cb7-11" title="11">    <span class="fu">}</span><span class="ot">,</span></a>
+<a class="sourceLine" id="cb7-12" title="12">    <span class="fu">{</span></a>
+<a class="sourceLine" id="cb7-13" title="13">      <span class="dt">"filePattern"</span><span class="fu">:</span> <span class="st">"/tmp/app.log*"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb7-14" title="14">      <span class="dt">"deliveryStream"</span><span class="fu">:</span> <span class="st">"yourdeliverystream"</span></a>
+<a class="sourceLine" id="cb7-15" title="15">    <span class="fu">}</span></a>
+<a class="sourceLine" id="cb7-16" title="16">  <span class="ot">]</span></a>
+<a class="sourceLine" id="cb7-17" title="17"><span class="fu">}</span></a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock6"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>Use the keyboard arrows to navigate the file and enter the <code>i</code> key to start editing. Delete existing contents of <code>agent.json</code> and paste the following code. Make sure that you update the FMI value for <strong>deliveryStream</strong> (which should be <code>web-log-ingestion-stream</code>).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode json" id="codeblock7"><code class="sourceCode json"><a class="sourceLine" id="cb8-1" title="1"> <span class="fu">{</span></a>
+<a class="sourceLine" id="cb8-2" title="2">         <span class="dt">"cloudwatch.emitMetrics"</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb8-3" title="3">         <span class="dt">"kinesis.endpoint"</span><span class="fu">:</span> <span class="st">""</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb8-4" title="4">         <span class="dt">"firehose.endpoint"</span><span class="fu">:</span> <span class="st">""</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb8-5" title="5">         <span class="dt">"flows"</span><span class="fu">:</span> <span class="ot">[</span><span class="fu">{</span></a>
+<a class="sourceLine" id="cb8-6" title="6">                 <span class="dt">"filePattern"</span><span class="fu">:</span> <span class="st">"/tmp/logs/access_log*"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb8-7" title="7">                 <span class="dt">"deliveryStream"</span><span class="fu">:</span> <span class="st">"&lt;FMI&gt;"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb8-8" title="8">                 <span class="dt">"dataProcessingOptions"</span><span class="fu">:</span> <span class="ot">[</span><span class="fu">{</span></a>
+<a class="sourceLine" id="cb8-9" title="9">                         <span class="dt">"optionName"</span><span class="fu">:</span> <span class="st">"LOGTOJSON"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb8-10" title="10">                         <span class="dt">"logFormat"</span><span class="fu">:</span> <span class="st">"COMMONAPACHELOG"</span></a>
+<a class="sourceLine" id="cb8-11" title="11">                 <span class="fu">}</span><span class="ot">]</span></a>
+<a class="sourceLine" id="cb8-12" title="12">         <span class="fu">}</span><span class="ot">]</span></a>
+<a class="sourceLine" id="cb8-13" title="13"> <span class="fu">}</span></a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock7"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div>
+<p><strong>Note</strong>: If you gave the delivery stream a different name, exit the <code>agent.json</code> file and retrieve the name of your delivery stream by running the following command:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode json" id="codeblock8"><code class="sourceCode json"><a class="sourceLine" id="cb9-1" title="1"><span class="er">aws</span> <span class="er">firehose</span> <span class="er">list-delivery-streams</span> <span class="er">--region</span> <span class="er">us-east-1</span></a>
+<a class="sourceLine" id="cb9-2" title="2"></a>
+<a class="sourceLine" id="cb9-3" title="3">  <span class="fu">{</span></a>
+<a class="sourceLine" id="cb9-4" title="4">      <span class="dt">"DeliveryStreamNames"</span><span class="fu">:</span> <span class="ot">[</span></a>
+<a class="sourceLine" id="cb9-5" title="5">          <span class="st">"web-log-ingestion-stream"</span></a>
+<a class="sourceLine" id="cb9-6" title="6">      <span class="ot">]</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb9-7" title="7">      <span class="dt">"HasMoreDeliveryStreams"</span><span class="fu">:</span> <span class="kw">false</span></a>
+<a class="sourceLine" id="cb9-8" title="8">  <span class="fu">}</span></a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock8"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div>
+<p>The updated <code>agent.json</code> file should have the following:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode json" id="codeblock9"><code class="sourceCode json"><a class="sourceLine" id="cb10-1" title="1"><span class="fu">{</span></a>
+<a class="sourceLine" id="cb10-2" title="2">        <span class="dt">"cloudwatch.emitMetrics"</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb10-3" title="3">        <span class="dt">"kinesis.endpoint"</span><span class="fu">:</span> <span class="st">""</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb10-4" title="4">        <span class="dt">"firehose.endpoint"</span><span class="fu">:</span> <span class="st">""</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb10-5" title="5">        <span class="dt">"flows"</span><span class="fu">:</span> <span class="ot">[</span><span class="fu">{</span></a>
+<a class="sourceLine" id="cb10-6" title="6">                <span class="dt">"filePattern"</span><span class="fu">:</span> <span class="st">"/tmp/logs/access_log*"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb10-7" title="7">                <span class="dt">"deliveryStream"</span><span class="fu">:</span> <span class="st">"web-log-ingestion-stream"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb10-8" title="8">                <span class="dt">"dataProcessingOptions"</span><span class="fu">:</span> <span class="ot">[</span><span class="fu">{</span></a>
+<a class="sourceLine" id="cb10-9" title="9">                        <span class="dt">"optionName"</span><span class="fu">:</span> <span class="st">"LOGTOJSON"</span><span class="fu">,</span></a>
+<a class="sourceLine" id="cb10-10" title="10">                        <span class="dt">"logFormat"</span><span class="fu">:</span> <span class="st">"COMMONAPACHELOG"</span></a>
+<a class="sourceLine" id="cb10-11" title="11">                <span class="fu">}</span><span class="ot">]</span></a>
+<a class="sourceLine" id="cb10-12" title="12">        <span class="fu">}</span><span class="ot">]</span></a>
+<a class="sourceLine" id="cb10-13" title="13"><span class="fu">}</span></a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock9"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>Enter the <strong>ESC</strong> key to switch back to command mode. If you are using Vim, enter <code>:wq</code> to save and exit the file.</p></li>
+<li><p>Start the agent by running the following command:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash" id="codeblock10"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" title="1"><span class="fu">sudo</span> service aws-kinesis-agent start</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock10"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div>
+<p>If you want to see what is happening, or if you want to troubleshoot the agent, you can use the <code>tail -f</code> command on the <code>/var/log/aws-kinesis-agent/aws-kinesis-agent.log</code> file.</p>
+<p><strong>Note</strong>: It might take approximately 5 minutes before data starts to appear in your Firehose delivery stream.</p></li>
+</ol>
+<h2 id="task-4-creating-the-second-kinesis-data-firehose-delivery-stream-and-configuring-the-opensearch-service-domain">Task 4: Creating the second Kinesis Data Firehose delivery stream and configuring the OpenSearch Service domain</h2>
+<p>In this task, you create the second Kinesis Data Firehose delivery stream and another Amazon S3 bucket. This delivery stream sends the data to the OpenSearch Service domain that you created previously.</p>
+<ol type="1">
+<li><p>Return to the <strong>Amazon Kinesis</strong> console.</p></li>
+<li>On the <strong>Data Firehose</strong> card, choose <strong>Create delivery stream</strong> and configure the following settings.
+<ul>
+<li><strong>Source</strong>: Direct PUT</li>
+<li><strong>Destination</strong>: Amazon OpenSearch Service</li>
+<li><strong>Delivery stream name</strong>: <code>web-log-aggregated-data</code></li>
+<li><strong>Destination settings</strong>: Browse to and select the <em>web-log-summary</em> domain</li>
+<li><strong>Index</strong>: <code>request_data</code></li>
+<li><strong>Backup settings</strong>: <em>Create</em></li>
+</ul>
+<p>Again, this action opens a new browser tab so that you can create an Amazon S3 bucket.</p></li>
+<li><p>For <strong>Bucket name</strong>, enter another unique name.</p>
+<p>For example, you can create a bucket name by using the following naming convention and replacing the FMI with your initials.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode json" id="codeblock11"><code class="sourceCode json"><a class="sourceLine" id="cb12-1" title="1"><span class="er">&lt;FMI&gt;-web-log-aggregated-errors</span></a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock11"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div>
+<p>Example:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode json" id="codeblock12"><code class="sourceCode json"><a class="sourceLine" id="cb13-1" title="1"><span class="er">emr-web-log-aggregated-errors</span></a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock12"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>For <strong>Region</strong>, keep <strong>US East (N. Virginia) us-east-1</strong>.</p></li>
+<li><p>Choose <strong>Create bucket</strong>.</p></li>
+<li><p>Switch back to the <strong>Kinesis Data Firehose</strong> console.</p></li>
+<li><p>Next to the <strong>S3 backup bucket</strong> box, choose <strong>Browse</strong>.</p></li>
+<li><p>Select the bucket that you created for this stream, and then <strong>Choose</strong>.</p>
+<p><strong>Note</strong>: If the bucket isn’t listed, choose the refresh icon.</p></li>
+<li><p>Expand <strong>Buffer hints, compression and encryption</strong>, and configure the following settings.</p>
+<ul>
+<li><strong>Buffer size</strong>: Change to <code>1</code></li>
+<li><strong>Buffer interval</strong>: Keep <em>60</em></li>
+</ul>
+<p>The frequency of data delivery to Amazon S3 is determined by the Amazon S3 <strong>Buffer size</strong> and <strong>Buffer interval</strong> values that you configure for your delivery stream. Amazon Kinesis provides the fastest data delivery if you configure the lowest buffer size.</p></li>
+<li><p>Choose <strong>Create delivery stream</strong> and wait for the <strong>Status</strong> to become <em>Active</em>.</p></li>
+<li><p>In the navigation pane of the AWS Management Console, choose <strong>Services</strong>, and search for and open <strong>IAM</strong>.</p></li>
+<li><p>In the IAM navigation pane, under <strong>Access management</strong>, choose <strong>Roles</strong>.</p></li>
+<li><p>In the search box, enter <code>KinesisFirehoseServiceRole-web-log-aggre</code> and choose the <strong>Role name</strong> link.</p></li>
+<li><p>Copy the role’s <strong>ARN</strong> value, which should look similar to the following:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash" id="codeblock13"><code class="sourceCode bash"><a class="sourceLine" id="cb14-1" title="1"><span class="ex">arn</span>:aws:iam::000000000000:role/service-role/KinesisFirehoseServiceRole-web-log-aggre-us-east-1-0000000000000</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock13"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>Return to the <strong>OpenSearch Service</strong> console, and in the navigation pane, choose <strong>Domains</strong>.</p></li>
+<li><p>In the <strong>Domains</strong> pane, choose the <strong>web-log-summary</strong> name link.</p></li>
+<li><p>Choose the link for the <strong>OpenSearch Dashboards URL</strong>. This action launches the dashboard.</p></li>
+<li>Log in to the dashboard with your OpenSearch Service information:
+<ul>
+<li><strong>username</strong>: <code>admin</code></li>
+<li><strong>password</strong>: <code>#MasterPassword1@</code></li>
+</ul></li>
+<li><p>If you see a <strong>Welcome to Elastic</strong> dialog box, close the message by choosing <strong>Explore on my own</strong>.</p></li>
+<li><p>If you see a <strong>Select your tenant</strong> dialog box, keep the <strong>Private</strong> setting, and choose <strong>Confirm</strong>.</p></li>
+<li><p>Expand the navigation pane by choosing the menu icon (in the upper-left area of the OpenSearch Dashboards console).</p></li>
+<li><p>In the navigation pane, under <strong>OpenSearch Plugins</strong>, choose <strong>Security</strong>.</p></li>
+<li><p>In the <strong>Security</strong> navigation pane, choose <strong>Explore existing roles</strong>.</p></li>
+<li><p>Search for the <em>all_access</em> role and open its details by choosing the <strong>Role</strong> link.</p></li>
+<li><p>Choose the <strong>Mapped users</strong> tab and choose <strong>Manage mapping</strong>.</p></li>
+<li><p>In the <strong>Users box</strong>, paste the <em>IAM role ARN</em> that you copied earlier and press <strong>Enter</strong>.</p>
+<p>It should look similar to the following example:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash" id="codeblock14"><code class="sourceCode bash"><a class="sourceLine" id="cb15-1" title="1"><span class="ex">arn</span>:aws:iam::000000000000:role/service-role/KinesisFirehoseServiceRole-web-log-aggre-us-east-1-0000000000000</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock14"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>Choose <strong>Map</strong>.</p>
+<p>The <strong>Mapped users</strong> list should have an <em>admin</em> user and a user with the <em>IAM role ARN</em> that you copied. They should look similar to this example:</p>
+<figure>
+<img src="./kinesis_log_analysis_files/Kibana-Map-User.png" alt="User mapping list"><figcaption>User mapping list</figcaption>
+</figure>
+<p>Don’t close the OpenSearch Dashboards. You’ll return to it later.</p></li>
+</ol>
+<h2 id="task-5-creating-the-kinesis-data-analytics-application">Task 5: Creating the Kinesis Data Analytics application</h2>
+<p>In this task, you process and analyze streaming data using standard SQL.</p>
+<ol type="1">
+<li><p>In a new browser tab, switch back to the <strong>AWS Management Console</strong>.</p></li>
+<li><p>In the console, return to the <strong>Amazon Kinesis</strong> dashboard.</p></li>
+<li><p>In the navigation pane, choose <strong>Analytics applications</strong>.</p></li>
+<li><p>Again in the navigation pane, choose <strong>SQL applications (legacy)</strong>.</p></li>
+<li><p>Choose the <strong>Create SQL application (legacy)</strong> button.</p></li>
+<li><p>For <strong>Application name</strong>, paste <code>web-log-aggregation-app</code> and choose <strong>Create legacy SQL application</strong>.</p></li>
+<li><p>Scroll to the <strong>Source</strong> tab, and in the <strong>Source stream</strong> section, and choose <strong>Configure</strong>.</p></li>
+<li><p>Configure the following settings.</p>
+<ul>
+<li><strong>Source</strong>: <em>Kinesis Data Firehose delivery stream</em><br>
+</li>
+<li><strong>Delivery stream</strong>: <em>Browse</em> and select <em>web-log-ingestion-stream</em> (which is the delivery stream you created in Task 2)</li>
+<li><strong>Schema</strong>: <em>Discover schema</em> and wait for the schema to populate</li>
+</ul>
+<p>You should see a schema that’s similar to this example:</p>
+<figure>
+<img src="./kinesis_log_analysis_files/Schema-Discovery.png" alt="Example schema"><figcaption>Example schema</figcaption>
+</figure></li>
+<li><p>Choose <strong>Save changes</strong>.</p></li>
+<li><p>At the top of the <strong>web-log-aggregation-app</strong> pane, expand <strong>Steps to configure your application</strong>.</p></li>
+<li><p>In <strong>Step 2</strong>, choose <strong>Configure SQL</strong>. With the SQL editor, you can write queries to process streaming data.</p></li>
+<li><p>In the <strong>SQL code</strong> box, paste the following:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode sql" id="codeblock15"><code class="sourceCode sql"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">CREATE</span> <span class="kw">OR</span> <span class="kw">REPLACE</span> STREAM <span class="ot">"DESTINATION_SQL_STREAM"</span></a>
+<a class="sourceLine" id="cb16-2" title="2">  (datetime <span class="dt">TIMESTAMP</span>, status <span class="dt">INTEGER</span>, statusCount <span class="dt">INTEGER</span>);</a>
+<a class="sourceLine" id="cb16-3" title="3"></a>
+<a class="sourceLine" id="cb16-4" title="4"><span class="kw">CREATE</span> <span class="kw">OR</span> <span class="kw">REPLACE</span> PUMP <span class="ot">"STREAM_PUMP"</span> <span class="kw">AS</span> <span class="kw">INSERT</span> <span class="kw">INTO</span> <span class="ot">"DESTINATION_SQL_STREAM"</span></a>
+<a class="sourceLine" id="cb16-5" title="5"><span class="kw">SELECT</span> STREAM ROWTIME <span class="kw">as</span> datetime, <span class="ot">"response"</span> <span class="kw">as</span> status, <span class="fu">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> statusCount</a>
+<a class="sourceLine" id="cb16-6" title="6"><span class="kw">FROM</span> <span class="ot">"SOURCE_SQL_STREAM_001"</span></a>
+<a class="sourceLine" id="cb16-7" title="7"><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="ot">"response"</span>,</a>
+<a class="sourceLine" id="cb16-8" title="8"><span class="fu">FLOOR</span>((<span class="ot">"SOURCE_SQL_STREAM_001"</span>.ROWTIME <span class="op">-</span> <span class="dt">TIMESTAMP</span> <span class="st">'1970-01-01 00:00:00'</span>) <span class="kw">minute</span> <span class="op">/</span> <span class="dv">1</span> <span class="kw">TO</span> <span class="kw">MINUTE</span>);</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock15"><img class="clipboard" src="./kinesis_log_analysis_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>Choose <strong>Save and run application</strong>.</p>
+<p>The application should start after 30–90 seconds. You should see the message <em>Application web-log-aggregation-app has been successfully started</em>.</p>
+<p>You have now configured the application source and real-time analytics.</p></li>
+<li><p>Choose the <strong>web-log-aggregation-app</strong> page.</p></li>
+<li><p>In the main pane, choose the <strong>Destinations</strong> tab.</p></li>
+<li>Choose <strong>Add destinations</strong> and configure the following settings.
+<ul>
+<li><strong>Destination</strong>: <em>Kinesis Data Firehose delivery stream</em></li>
+<li><strong>Delivery stream</strong>: <em>Browse</em> to and select <em>web-log-aggregated-data</em></li>
+<li><strong>Connect in-application stream</strong>: Keep <em>Choose an existing in-application stream</em> selected</li>
+<li><strong>In-application stream name</strong>: <em>DESTINATION_SQL_STREAM</em></li>
+</ul></li>
+<li><p>Choose <strong>Save changes</strong>.</p></li>
+</ol>
+<h2 id="task-6-visualizing-the-data-in-opensearch-dashboards">Task 6: Visualizing the data in OpenSearch Dashboards</h2>
+<ol type="1">
+<li><p>Return to the <strong>OpenSearch Dashboards</strong>.</p></li>
+<li><p>Expand the navigation pane by choosing the menu icon.</p></li>
+<li><p>In the navigation pane, choose <strong>Dashboard</strong>.</p></li>
+<li><p>Choose <strong>Install some sample data</strong>.</p></li>
+<li><p>On the <strong>Sample web logs</strong> tile, choose <strong>Add data</strong>. For more information on how to explore data in OpenSearch, see <a href="https://opensearch.org/docs/2.0/dashboards/index/">Getting started with OpenSearch Dashboards</a>.</p></li>
+</ol>
+<p>This solution uses Amazon Kinesis to ingest the raw data, and then saves the data in Amazon S3. It delivers only a refined version of the data to OpenSearch Service.</p>
+<p>Depending on how you want to architect your data lake solution—and taking many other subjects into consideration, such as budget included—you might want to take a different approach. For example, you might send the raw logs directly to OpenSearch Service, and then do all the filtering in OpenSearch Dashboards. You can decide how you will design your solution, and remember that it’s important to match the workload to the need.</p>
+<h2 id="cleaning-up">Cleaning up</h2>
+<p>In this task, you delete the AWS resources that you created for this exercise.</p>
+<ol type="1">
+<li>Delete the CloudFormation stack.
+<ul>
+<li>Open the <strong>AWS CloudFormation</strong> dashboard.</li>
+<li>Delete the <strong>exercise-2-kinesis</strong> stack, and confirm the deletion.</li>
+</ul></li>
+<li>Delete the OpenSearch Service domain.
+<ul>
+<li>Open the <strong>Amazon OpenSearch</strong> dashboard.</li>
+<li>Choose <strong>web-log-summary</strong>, choose <strong>Delete</strong>, and confirm the deletion.</li>
+</ul></li>
+<li>Delete the Kinesis resources.
+<ul>
+<li>Open the <strong>Kinesis</strong> dashboard.</li>
+<li>In the navigation pane, choose <strong>Delivery streams</strong>.</li>
+<li>Delete the following delivery streams, and confirm their deletion:
+<ul>
+<li><strong>web-log-aggregated-data</strong></li>
+<li><strong>web-log-ingestion-stream</strong></li>
+</ul></li>
+<li>In the navigation pane, choose <strong>Analytics applications</strong> and then choose <strong>SQL applications (legacy)</strong>.</li>
+<li>Delete <strong>web-log-aggregation-app</strong>, and confirm the deletion.</li>
+</ul></li>
+<li>Delete the S3 buckets.
+<ul>
+<li>Open the <strong>Amazon S3</strong> dashboard.</li>
+<li>Empty and delete the following buckets, and confirm their deletion:
+<ul>
+<li><strong>-web-log-aggregated-errors</strong></li>
+<li><strong>-web-log-ingestion-bucket</strong></li>
+</ul></li>
+</ul></li>
+<li>Delete the IAM roles.
+<ul>
+<li>Open the <strong>IAM</strong> dashboard.</li>
+<li>In the navigation pane, choose <strong>Roles</strong>.</li>
+<li>Delete the <strong>Kinesis</strong> roles, and confirm their deletion:
+<ul>
+<li><strong>kinesis-analytics-web-log-aggregation-app-us-east-1</strong></li>
+<li><strong>KinesisFirehoseServiceRole-web-log-aggre-us-east-1-xxxxxxxxxxxxx</strong></li>
+<li><strong>KinesisFirehoseServiceRole-web-log-inges-us-east-1-xxxxxxxxxxxxx</strong></li>
+</ul></li>
+</ul></li>
+</ol>
+<script>
+document.body.innerHTML = document.body.innerHTML.replace(/https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/DEV-AWS-MO-Designing_DataLakes/(.+)/g, function (match, capture) {
+  let tmp = document.createElement("DIV");
+  tmp.innerHTML = capture;
+  return new URL(tmp.textContent || tmp.innerText || "", document.baseURI).href;
+});
+</script>
+
+<footer>
+    <p>© 2022 Amazon Web Services, Inc. or its affiliates. All rights reserved. This work may not be reproduced or redistributed, in whole or in part, without prior written permission from Amazon Web Services, Inc. Commercial copying, lending, or selling is prohibited. Corrections, feedback, or other questions? Contact us at <a href="https://support.aws.amazon.com/#/contacts/aws-training" target="_blank">https://support.aws.amazon.com/#/contacts/aws-training</a>. All trademarks are the property of their owners.</p>
+</footer>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+  div.grammarly-desktop-integration {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select:none;
+    user-select:none;
+  }
+
+  div.grammarly-desktop-integration:before {
+    content: attr(data-content);
+  }
+</style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>

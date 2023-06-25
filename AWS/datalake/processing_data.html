@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<!-- saved from url=(0112)https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/DEV-AWS-MO-Designing_DataLakes/exercise-3-processing.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Exercise 3: Processing data in a data lake</title>
+  <script src="./processing_data_files/clipboard.min.js"></script>
+  <script src="./processing_data_files/copybutton.js"></script>
+
+<style>
+    html, body, footer {
+        font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+        margin: 1em;
+    }
+
+    img:not(.clipboard){
+        max-width: 100%;
+        height: auto;
+        width: auto;
+    }
+
+    /* Copy buttons */
+    button.copybtn {
+        webkit-transition: opacity .3s ease-in-out;
+        -o-transition: opacity .3s ease-in-out;
+        transition: opacity .3s ease-in-out;
+        opacity: 0;
+        padding: 2px 6px;
+        position: absolute;
+        right: 4px;
+        top: 4px;
+    }
+    div.sourceCode:hover .copybtn, div.sourceCode .copybtn:focus {
+        opacity: .3;
+    }
+    div.sourceCode .copybtn:hover {
+        opacity: 1;
+    }
+    div.sourceCode {
+        position: relative;
+    }
+    .xmodule_display.xmodule_HtmlBlock ol {
+        padding: 0 0 0 2em !important;
+    }
+    .xmodule_display.xmodule_HtmlBlock ul {
+        padding: 0 0 0 2em !important;
+    }
+
+    code {
+        padding: 2px 4px !important;
+        background-color: #eee !important;
+        border-radius: 4px;
+    }
+    pre code {
+        padding: 9.5px !important;
+        background-color: #f5f5f5 !important;
+        display: block;
+        overflow-x: auto;
+        margin: 0 0 10px;
+        font-size: 13px;
+        line-height: 1.42857143;
+        word-break: break-all;
+        word-wrap: break-word;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        white-space: pre;
+    }
+    pre code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    pre code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    pre code span.at { color: #7d9029; } /* Attribute */
+    pre code span.bn { color: #40a070; } /* BaseN */
+    pre code span.bu { color: #06287e; } /* BuiltIn */
+    pre code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    pre code span.ch { color: #4070a0; } /* Char */
+    pre code span.cn { color: #880000; } /* Constant */
+    pre code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    pre code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    pre code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    pre code span.dt { color: #902000; } /* DataType */
+    pre code span.dv { color: #40a070; } /* DecVal */
+    pre code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    pre code span.ex { color: #06287e; } /* Extension */
+    pre code span.fl { color: #40a070; } /* Float */
+    pre code span.fu { color: #06287e; } /* Function */
+    pre code span.im { } /* Import */
+    pre code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    pre code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    pre code span.op { color: #666666; } /* Operator */
+    pre code span.ot { color: #007020; } /* Other */
+    pre code span.pp { color: #bc7a00; } /* Preprocessor */
+    pre code span.sc { color: #4070a0; } /* SpecialChar */
+    pre code span.ss { color: #bb6688; } /* SpecialString */
+    pre code span.st { color: #4070a0; } /* String */
+    pre code span.va { color: #19177c; } /* Variable */
+    pre code span.vs { color: #4070a0; } /* VerbatimString */
+    pre code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+    footer {
+        padding-top: 3em;
+        font-style: italic;
+        font-size: .9em;
+    }
+</style>
+</head><body data-new-gr-c-s-check-loaded="14.1113.0" data-gr-ext-installed="">
+<p><em>[version_1.0]</em></p>
+<div style="background-color: #FFD2D2; padding: 15px; margin-bottom: 25px">
+<h3>
+<span class="fa fa-info-circle"></span> Note
+</h3>
+<p>The exercises in this course will have an associated charge in your AWS account. In this exercise, you will create the following resources:</p>
+<ul>
+<li>AWS Glue crawlers</li>
+<li>Amazon Simple Storage Service (Amazon S3) bucket</li>
+<li>Amazon Athena query</li>
+<li>AWS Identity and Access Management (IAM) roles (created by AWS CloudFormation)</li>
+</ul>
+<p><strong>The final exercise task includes instructions to delete all the resources that you create for this exercise.</strong></p>
+<p>Familiarize yourself with <strong><a href="https://aws.amazon.com/glue/pricing/" target="_blank">AWS Glue</a></strong>, <strong><a href="https://aws.amazon.com/s3/pricing/" target="_blank">Amazon S3 pricing</a></strong>, <strong><a href="https://aws.amazon.com/athena/pricing/" target="_blank">Amazon Athena</a></strong>, and the <strong><a href="https://aws.amazon.com/free/" target="_blank">AWS Free Tier</a></strong>.</p>
+</div>
+<h1 id="exercise-3-processing-data-in-a-data-lake">Exercise 3: Processing data in a data lake</h1>
+<p>In this exercise, you define a database and configure a crawler to explore data in an Amazon S3 bucket. Next, you create a table. You then transform the comma-separated values (CSV) file into Parquet and create a table for the Parquet data. Finally, you query the data with Amazon Athena.</p>
+<h2 id="setting-up">Setting up</h2>
+<p>This exercise requires an IAM role and an Amazon S3 bucket. You will create these resources by using the provided CloudFormation template.</p>
+<ol type="1">
+<li><p>Download the following CloudFormation template: <a href="https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/DEV-AWS-MO-Designing_DataLakes/downloads/exercise-3-processing.yml">exercise-3-processing.yml</a>. This template will set up backend resources that you need to complete the exercise.</p>
+<p><strong>Note</strong>: If you have an existing virtual private cloud (VPC) with the Classless Inter-Domain Routing (CIDR) block <em>10.16.0.0/16</em>, you must edit the template and change its CIDR block.</p></li>
+<li><p>Sign in to the AWS Management Console as a user that has the necessary permissions to create an IAM role and CloudFormation stack. You have already created the CloudFormation role in exercise 2 of this course. If you don’t have a user or role with permissions to create a stack in AWS CloudFormation, you must create the user or role before you proceed to the next step. If you are unsure how to create a role, see the step-by-step instructions in the <strong>Setting up</strong> section in exercise 2.</p></li>
+<li><p>After you create the user or role to have permissions to work with AWS CloudFormation, open the <strong>CloudFormation</strong> console. Make sure that you are in the <strong>US East (N. Virginia)</strong> Region.</p></li>
+<li><p>Choose <strong>Create stack</strong>.</p></li>
+<li><p>In the <strong>Specify template</strong> section, choose <strong>Upload a template file</strong>.</p></li>
+<li><p>Select <strong>Choose file</strong>, browse to where you downloaded the <code>exercise-3-processing</code> template, and select the template.</p></li>
+<li><p>Choose <strong>Next</strong>.</p></li>
+<li><p>For <strong>Stack name</strong>, enter <code>exercise-3-processing</code>.</p></li>
+<li><p>Choose <strong>Next</strong>, and then choose <strong>Next</strong> again.</p></li>
+<li><p>Select the acknowledgement, and choose <strong>Create stack</strong>.</p></li>
+<li><p>After the stack is created, choose the <strong>Outputs</strong> tab and copy the name of the S3 bucket.</p></li>
+</ol>
+<h2 id="task-1-discovering-the-data">Task 1: Discovering the data</h2>
+<p>In this task, you first create the AWS Glue database. With AWS Glue, you can discover and connect diverse data sources and manage your data in a centralized data catalog. After you create the database, you add a crawler to extract, transform, and load (ETL) data into the database tables by using a source comma-separated values (CSV) file.</p>
+<ol type="1">
+<li><p>Choose <strong>Services</strong>, and search for and open <strong>AWS Glue</strong>.</p></li>
+<li><p>In the navigation pane, in the <strong>Data Catalog</strong> section, choose <strong>Databases</strong>.</p></li>
+<li><p>Choose <strong>Add database</strong>.</p></li>
+<li><p>For <strong>Database name</strong>, enter <code>nycitytaxi</code></p></li>
+<li><p>Choose <strong>Create database</strong>.</p></li>
+<li><p>In the navigation pane, choose <strong>Tables</strong>.</p>
+<p>You can add a table manually or by using a crawler. A crawler is a program that connects to a data store and progresses through a prioritized list of classifiers to determine the schema for your data. AWS Glue provides classifiers for common file types, such as CSV, JavaScript Object Notation (JSON), Apache Avro, and others. You can also write your own classifier by using a grok pattern.</p></li>
+<li><p>Choose <strong>Add tables using a crawler</strong>.</p></li>
+<li><p>For <strong>Crawler name</strong>, enter <code>nytaxicrawler</code> and choose <strong>Next</strong>.</p></li>
+<li><p>For <strong>Data source configuration</strong>, under <strong>Is your data already mapped to Glue tables?</strong>, keep <strong>Not yet</strong> selected.</p></li>
+<li><p>Under <strong>Data sources</strong>, choose <strong>Add a data source</strong>.</p></li>
+<li><p>For <strong>Data source</strong>, keep <strong>S3</strong>.</p></li>
+<li><p>For <strong>S3 path</strong>, paste the following path:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash" id="codeblock0"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="ex">s3</span>://aws-tc-largeobjects/DEV-AWS-MO-Designing_DataLakes/week3/</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock0"><img class="clipboard" src="./processing_data_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div>
+<p>This S3 bucket contains the data file, which includes data for all rides from the green taxis in the month of January 2020.</p></li>
+<li><p>Keep all other settings for this page at their default values. Then choose <strong>Add an S3 data source</strong>.</p></li>
+<li><p>Choose <strong>Next</strong>.</p></li>
+<li><p>On the <strong>Configure Security Settings</strong> page, under <strong>Existing IAM role</strong>, choose <strong>AWSGlueServiceRoleDefault</strong>, and then choose <strong>Next</strong>.</p></li>
+<li><p>On the <strong>Set output and scheduling</strong> page, under <strong>Target database</strong>, choose <strong>nycitytaxi</strong>.</p></li>
+<li><p>For <strong>Frequency</strong>, keep <strong>Run on demand</strong> selected and choose <strong>Next</strong>.</p></li>
+<li><p>On the <strong>Review all steps</strong> page, choose <strong>Create crawler</strong>.</p></li>
+<li><p>In the <strong>Crawlers</strong> pane, select <strong>nytaxicrawler</strong> and choose <strong>Run</strong>.</p>
+<p>When the crawler finishes running, one table is added to the database. After the job stops, you should see that the <strong>Tables added</strong> column now shows <em>1</em>.</p></li>
+<li><p>In the navigation pane, choose <strong>Tables</strong>.</p></li>
+<li><p>In the <strong>Tables</strong> pane, choose the <strong>week3</strong> link.</p>
+<p>This screen describes the table, including its schema, properties, and other information. If you want to look at the schema information, you can choose <strong>Edit schema</strong>.</p></li>
+</ol>
+<h2 id="task-2-transforming-the-data-from-csv-to-apache-parquet">Task 2: Transforming the data from CSV to Apache Parquet</h2>
+<p>In this task, you transform the data from CSV into Apache Parquet format. Apache Parquet organizes data in columns. This format type is more lightweight and brings efficiency compared to row-based files, such as CSV.</p>
+<ol type="1">
+<li><p>In the navigation pane of AWS Glue, in the <strong>ETL</strong> section, choose <strong>Jobs</strong>.</p>
+<p>This action opens a new browser tab in AWS Glue Studio.</p></li>
+<li><p>In the <strong>Create job</strong> section, keep all the default settings and choose <strong>Create</strong>.</p></li>
+<li><p>In the job diagram, choose the <strong>Data source - S3 bucket</strong> tile.</p></li>
+<li>In the right pane, configure the following settings:
+<ul>
+<li><strong>S3 source type</strong>: Keep <em>Data Catalog table</em> selected</li>
+<li><strong>Database</strong>: <em>nycitytaxi</em></li>
+<li><strong>Table</strong>: <em>week3</em></li>
+</ul></li>
+<li>In the job diagram, choose the <strong>Data target - S3 bucket</strong> tile and configure the following settings:
+<ul>
+<li><strong>Format</strong>: <em>Parquet</em></li>
+<li><strong>S3 Target location</strong>: Paste <code>s3://&lt;FMI&gt;/data/</code> and replace the FMI with your bucket name. When you replace the FMI with your own value, make sure that you also delete the angle brackets (&lt;&gt;).</li>
+</ul>
+<p>Example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash" id="codeblock1"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">s3</span>://glue-934169e0/data/</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock1"><img class="clipboard" src="./processing_data_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li>At the top of the pane, choose the <strong>Job details</strong> tab and configure the following settings:
+<ul>
+<li><strong>Name</strong>: <code>nytaxiparquet</code></li>
+<li><strong>IAM role</strong>: <em>AWSGlueServiceRoleDefault</em></li>
+</ul>
+<p><strong>Note</strong>: This role grants access to resources that AWS Glue needs to automatically generate the <em>nytaxi-csv-parquet</em> script.</p></li>
+<li><p>To verify the script, choose the <strong>Script</strong> tab. Feel free to review the script.</p></li>
+<li><p>Choose <strong>Save</strong> to save the job and then choose <strong>Run</strong>.</p>
+<p>Wait for the job to complete. You can view the status by choosing the <strong>Run details</strong> link (in the system message at the top of the pane) or by choosing the <strong>Runs</strong> tab.</p></li>
+<li><p>Return to the main <strong>AWS Glue</strong> console.</p></li>
+<li><p>In the navigation pane, in the <strong>Data catalog</strong> section, choose <strong>Crawlers</strong>.</p></li>
+<li><p>Choose <strong>Add crawler</strong>.</p></li>
+<li><p>For <strong>Crawler name</strong>, paste <code>nytaxiparquet</code> and choose <strong>Next</strong>.</p></li>
+<li><p>For <strong>Data source configuration</strong>, keep <strong>Not yet</strong> selected.</p></li>
+<li><p>For <strong>Data sources</strong>, choose <strong>Add a data source</strong>.</p></li>
+<li><p>For <strong>S3 path</strong>, paste <code>s3://&lt;FMI&gt;/data/</code>. Replace the FMI with the name of the bucket where the Parquet file is located.</p>
+<p>Example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash" id="codeblock2"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">s3</span>://glue-934169e0/data/</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock2"><img class="clipboard" src="./processing_data_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>Choose <strong>Add a data source</strong>. Then choose <strong>Next</strong>.</p></li>
+<li><p>On the <strong>Configure security settings</strong> page, under <strong>Existing IAM role</strong>, choose <strong>AWSGlueServiceRoleDefault</strong>. Then choose <strong>Next</strong>.</p></li>
+<li><p>For <strong>Target database</strong>, select <strong>nycitytaxi</strong>.</p></li>
+<li><p>For <strong>Frequency</strong>, keep <strong>Run on demand</strong> selected and choose <strong>Next</strong>.</p></li>
+<li><p>On the <strong>Review and create</strong> page, choose <strong>Create crawler</strong>.</p></li>
+<li><p>Select the <strong>nytaxiparquet</strong> crawler and choose <strong>Run crawler</strong>. Wait for the job to finish.</p></li>
+<li><p>In the navigation pane, in the <strong>Data catalog</strong> section, choose <strong>Tables</strong>.</p>
+You should see two tables:
+<ul>
+<li><strong>week3</strong> – The original CSV version from the source bucket</li>
+<li><strong>data</strong> – The Parquet table in your S3 bucket</li>
+</ul></li>
+</ol>
+<h2 id="task-3-analyzing-the-data-with-amazon-athena">Task 3: Analyzing the data with Amazon Athena</h2>
+<p>Athena is an interactive query service that you can use to analyze data in Amazon S3 with standard SQL. Athena can query CSV data. However, the Parquet file format significantly reduces the time and cost of querying the data.</p>
+<p>In this task, you use Athena to analyze the data in the S3 bucket.</p>
+<ol type="1">
+<li><p>Choose <strong>Services</strong>, and search for and open <strong>Athena</strong>.</p></li>
+<li><p>If you are a new user, choose <strong>Explore the query editor</strong>. For existing users, the Query editor may open automatically.</p></li>
+<li><p>On the <strong>Data</strong> tile, under <strong>Database</strong>, choose <strong>nycitytaxi</strong>.</p></li>
+<li><p>In the query editor box, paste the following:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sql" id="codeblock3"><code class="sourceCode sql"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">Select</span> <span class="op">*</span> <span class="kw">From</span> <span class="ot">"nycitytaxi"</span>.<span class="ot">"week3"</span> <span class="kw">limit</span> <span class="dv">10</span>;</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock3"><img class="clipboard" src="./processing_data_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>Choose the <strong>Save</strong> menu and select <strong>Save as</strong>.</p></li>
+<li><p>For both <strong>Query name</strong> and <strong>Query description</strong>, paste <code>taxidata</code> and choose <strong>Save query</strong>.</p></li>
+<li><p>At the top of the query editor pane, choose the <strong>Settings</strong> tab and then choose <strong>Manage</strong>.</p></li>
+<li><p>For <strong>Location of query result</strong>, paste the following path for your bucket and replace the FMI with your bucket name.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash" id="codeblock4"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1"><span class="ex">s3</span>://<span class="op">&lt;</span>FMI<span class="op">&gt;</span>/sql/</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock4"><img class="clipboard" src="./processing_data_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div>
+<p>Example:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash" id="codeblock5"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="ex">s3</span>://glue-934169e0/sql/</a></code></pre><button class="btn copybtn" data-clipboard-target="#codeblock5"><img class="clipboard" src="./processing_data_files/clipboard.svg" width="13" alt="Copy to clipboard"></button></div></li>
+<li><p>Choose <strong>Save</strong>.</p></li>
+<li><p>Choose the <strong>Editor</strong> tab and choose <strong>Run</strong>.</p></li>
+</ol>
+<p>You can now browse the results and see information such as the <em>passenger_count</em>, <em>trip_distance</em>, and <em>tip_amount</em>.</p>
+<p>After you query the data, you can optionally connect Amazon Athena with Amazon QuickSight to visualize data through dashboards.</p>
+<h2 id="cleaning-up">Cleaning up</h2>
+<p>Delete the AWS resources that you created for this exercise by completing the following steps.</p>
+<ol type="1">
+<li>Delete the Athena query.
+<ul>
+<li>Open the <strong>Amazon Athena</strong> dashboard.</li>
+<li>In the navigation pane, choose <strong>Query editor</strong> and then choose the <strong>Saved queries</strong> tab.</li>
+<li>Delete the <strong>taxidata</strong> query and confirm the deletion.</li>
+</ul></li>
+<li>Delete the AWS Glue resources.
+<ul>
+<li>Open the <strong>AWS Glue</strong> dashboard.</li>
+<li>In the navigation pane, choose <strong>Crawlers</strong>.</li>
+<li>Delete the following crawlers, and confirm their deletion:
+<ul>
+<li><strong>nytaxicrawler</strong></li>
+<li><strong>nytaxiparquet</strong></li>
+</ul></li>
+<li>In the navigation pane, choose <strong>Tables</strong>.</li>
+<li>Delete the table and confirm the deletion.</li>
+<li>In the navigation pane, choose <strong>Databases</strong>.</li>
+<li>Delete the <strong>nycitytaxi</strong> database and confirm the deletion.</li>
+<li>In the navigation pane, choose <strong>Jobs</strong> (in the <strong>ETL</strong> section).</li>
+<li>Delete <strong>nytaxiparquet</strong>, and confirm the deletion.</li>
+</ul></li>
+<li>Delete the S3 buckets.
+<ul>
+<li>Open the <strong>Amazon S3</strong> dashboard.</li>
+<li>Empty and delete the following buckets, and confirm their deletion:
+<ul>
+<li><strong>glue-</strong> bucket</li>
+<li><strong>aws-glue-assets-</strong> bucket</li>
+<li><strong>cf-templates-</strong> bucket</li>
+</ul></li>
+</ul></li>
+<li>Delete the CloudFormation stack.
+<ul>
+<li>Open the <strong>AWS CloudFormation</strong> dashboard.</li>
+<li>Delete the stack and confirm the deletion.</li>
+</ul></li>
+<li>Optionally, delete the IAM role. IAM users, roles, and policies don’t have an associated charge in your AWS account.
+<ul>
+<li>Open the <strong>IAM</strong> dashboard.</li>
+<li>In the navigation pane, choose <strong>Roles</strong>.</li>
+<li>Delete the IAM role for CloudFormation, and confirm the deletion.</li>
+</ul></li>
+</ol>
+<p>Congratulations! You successfully completed the final exercise this course. In this exercise, you gained a deeper understanding of how to transform and process data in a data lake. You defined a database, configured a crawler, and created a table in AWS Glue. You then transformed the CSV file into Parquet to save data processing costs, and repeated the steps to create a table for the Parquet data. Finally, you queried the data with Amazon Athena.</p>
+<script>
+document.body.innerHTML = document.body.innerHTML.replace(/https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/DEV-AWS-MO-Designing_DataLakes/(.+)/g, function (match, capture) {
+  let tmp = document.createElement("DIV");
+  tmp.innerHTML = capture;
+  return new URL(tmp.textContent || tmp.innerText || "", document.baseURI).href;
+});
+</script>
+
+<footer>
+    <p>© 2022 Amazon Web Services, Inc. or its affiliates. All rights reserved. This work may not be reproduced or redistributed, in whole or in part, without prior written permission from Amazon Web Services, Inc. Commercial copying, lending, or selling is prohibited. Corrections, feedback, or other questions? Contact us at <a href="https://support.aws.amazon.com/#/contacts/aws-training" target="_blank">https://support.aws.amazon.com/#/contacts/aws-training</a>. All trademarks are the property of their owners.</p>
+</footer>
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+  div.grammarly-desktop-integration {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select:none;
+    user-select:none;
+  }
+
+  div.grammarly-desktop-integration:before {
+    content: attr(data-content);
+  }
+</style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>
