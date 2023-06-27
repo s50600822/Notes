@@ -1,15 +1,12 @@
-
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
-import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class PercolationStats {
     private double[] thresholds;
     private int trials;
-    private double meanValue;
-    private double stddevValue;
+    private double mean;
+    private double stddev;
 
-    // perform independent trials on an n-by-n grid
     public PercolationStats(int n, int trials) {
         if (n <= 0 || trials <= 0) {
             throw new IllegalArgumentException("Invalid input values");
@@ -21,14 +18,21 @@ public class PercolationStats {
         for (int i = 0; i < trials; i++) {
             Percolation percolation = new Percolation(n);
             int openSites = 0;
+            boolean[][] visited = new boolean[n][n];
 
             while (!percolation.percolates()) {
-                int row = getRandomIndex(n);
-                int col = getRandomIndex(n);
-
-                if (!percolation.isOpen(row, col)) {
-                    percolation.open(row, col);
-                    openSites++;
+                int row = randomStep(n);
+                int col = randomStep(n);
+                if(!visited[row - 1][col - 1]){
+                    if (!percolation.isOpen(row, col)) {
+                        visited[row - 1][col - 1] = true;
+                        percolation.open(row, col);
+                        openSites++;
+                    }
+                    //System.out.println("Open Sites: " + openSites);
+                    visited[row - 1][col - 1] = true;
+                } else {
+                    //System.out.println(String.format("skipped(%d, %d)", row, col));
                 }
             }
 
@@ -38,60 +42,45 @@ public class PercolationStats {
         calculateStatistics();
     }
 
-    // sample mean of percolation threshold
     public double mean() {
-        return meanValue;
+        return mean;
     }
 
-    // sample standard deviation of percolation threshold
     public double stddev() {
-        return stddevValue;
+        return stddev;
     }
 
-    // low endpoint of 95% confidence interval
     public double confidenceLo() {
-        return meanValue - (1.96 * stddevValue / Math.sqrt(trials));
+        return mean - (1.96 * stddev / Math.sqrt(trials));
     }
 
-    // high endpoint of 95% confidence interval
     public double confidenceHi() {
-        return meanValue + (1.96 * stddevValue / Math.sqrt(trials));
+        return mean + (1.96 * stddev / Math.sqrt(trials));
     }
 
-    // test client (see below)
     public static void main(String[] args) {
-        int n = 20; // Size of the grid
-        int trials = 100; // Number of trials
+        int n = 5;
+        int t = 25;
 
-        PercolationStats stats = new PercolationStats(n, trials);
+        PercolationStats stats = new PercolationStats(n, t);
 
         System.out.println("Mean: " + stats.mean());
         System.out.println("Standard Deviation: " + stats.stddev());
         System.out.println("95% Confidence Interval: [" + stats.confidenceLo() + ", " + stats.confidenceHi() + "]");
     }
 
-    // Helper method to generate random indices
-    private int getRandomIndex(int n) {
-        Random random = new Random();
-        return random.nextInt(n) + 1;
+    private int randomStep(int n) {
+        return StdRandom.uniformInt(n) + 1;
     }
 
-    // Helper method to calculate mean and standard deviation
     private void calculateStatistics() {
-        double sum = 0.0;
-
-        for (double threshold : thresholds) {
-            sum += threshold;
-        }
-
-        meanValue = sum / trials;
-
+        mean = StdStats.mean(thresholds);
         double squaredSum = 0.0;
 
         for (double threshold : thresholds) {
-            squaredSum += Math.pow(threshold - meanValue, 2);
+            squaredSum += Math.pow(threshold - mean, 2);
         }
 
-        stddevValue = Math.sqrt(squaredSum / (trials - 1));
+        stddev = Math.sqrt(squaredSum / (trials - 1));
     }
 }
