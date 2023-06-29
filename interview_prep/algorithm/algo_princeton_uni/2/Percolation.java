@@ -45,6 +45,18 @@ public class Percolation {
         return weightedQuickUnionUF.find(firstReserved) == weightedQuickUnionUF.find(secondReserved);
     }
 
+    public int numberOfOpenSites(){
+        int count = 0;
+            for (boolean open : opened) {
+            if (open) {
+                count++;
+            }
+        }
+        return count;
+    
+    }
+
+
     private void connectIfIsOpened(int main, int... others) {
         Arrays.stream(others)
                 .filter(site -> neighbourIsOpened(main, site))

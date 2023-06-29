@@ -59,8 +59,13 @@ public class PercolationStats {
     }
 
     public static void main(String[] args) {
-        int n = 5;
-        int t = 25;
+        int n = 200;
+        int t = 100;
+
+        if(args.length == 2){
+            n = Integer.parseInt(args[0]);
+           t = Integer.parseInt(args[1]);
+        }
 
         PercolationStats stats = new PercolationStats(n, t);
 
