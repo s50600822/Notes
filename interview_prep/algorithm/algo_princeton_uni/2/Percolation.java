@@ -1,7 +1,5 @@
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
-import java.util.Arrays;
-
 public class Percolation {
     private final WeightedQuickUnionUF weightedQuickUnionUF;
     private final boolean[] opened;
@@ -58,9 +56,11 @@ public class Percolation {
 
 
     private void connectIfIsOpened(int main, int... others) {
-        Arrays.stream(others)
-                .filter(site -> neighbourIsOpened(main, site))
-                .forEach(site -> weightedQuickUnionUF.union(main, site));
+    for (int site : others) {
+    if (neighbourIsOpened(main, site)) {
+    weightedQuickUnionUF.union(main, site);
+    }
+    }
     }
 
     private boolean neighbourIsOpened(int first, int second) {

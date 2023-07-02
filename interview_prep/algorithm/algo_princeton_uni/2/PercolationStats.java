@@ -6,6 +6,8 @@ public class PercolationStats {
     private int trials;
     private double mean;
     private double stddev;
+    // https://math.stackexchange.com/questions/1480904/given-a-95-confidence-interval-why-are-we-using-1-96-and-not-1-64
+    private static final double MAGIC = 1.96;
 
     public PercolationStats(int n, int trials) {
         if (n <= 0 || trials <= 0) {
@@ -39,7 +41,8 @@ public class PercolationStats {
             thresholds[i] = (double) openSites / (n * n);
         }
 
-        calculateStatistics();
+        mean = StdStats.mean(thresholds);
+        stddev = StdStats.stddev(thresholds);
     }
 
     public double mean() {
@@ -51,11 +54,11 @@ public class PercolationStats {
     }
 
     public double confidenceLo() {
-        return mean - (1.96 * stddev / Math.sqrt(trials));
+        return mean - (MAGIC * stddev / Math.sqrt(trials));
     }
 
     public double confidenceHi() {
-        return mean + (1.96 * stddev / Math.sqrt(trials));
+        return mean + (MAGIC * stddev / Math.sqrt(trials));
     }
 
     public static void main(String[] args) {
@@ -76,16 +79,5 @@ public class PercolationStats {
 
     private int randomStep(int n) {
         return StdRandom.uniformInt(n) + 1;
-    }
-
-    private void calculateStatistics() {
-        mean = StdStats.mean(thresholds);
-        double squaredSum = 0.0;
-
-        for (double threshold : thresholds) {
-            squaredSum += Math.pow(threshold - mean, 2);
-        }
-
-        stddev = Math.sqrt(squaredSum / (trials - 1));
     }
 }
