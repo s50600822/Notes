@@ -2,12 +2,13 @@ import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
+    // https://math.stackexchange.com/questions/1480904/given-a-95-confidence-interval-why-are-we-using-1-96-and-not-1-64
+    private static final double CONF = 1.96;
+
     private double[] thresholds;
     private int trials;
     private double mean;
     private double stddev;
-    // https://math.stackexchange.com/questions/1480904/given-a-95-confidence-interval-why-are-we-using-1-96-and-not-1-64
-    private static final double MAGIC = 1.96;
 
     public PercolationStats(int n, int trials) {
         if (n <= 0 || trials <= 0) {
@@ -25,7 +26,7 @@ public class PercolationStats {
             while (!percolation.percolates()) {
                 int row = randomStep(n);
                 int col = randomStep(n);
-                if(!visited[row - 1][col - 1]) {
+                if (!visited[row - 1][col - 1]) {
                     if (!percolation.isOpen(row, col)) {
                         visited[row - 1][col - 1] = true;
                         percolation.open(row, col);
@@ -54,18 +55,18 @@ public class PercolationStats {
     }
 
     public double confidenceLo() {
-        return mean - (MAGIC * stddev / Math.sqrt(trials));
+        return mean - (CONF * stddev / Math.sqrt(trials));
     }
 
     public double confidenceHi() {
-        return mean + (MAGIC * stddev / Math.sqrt(trials));
+        return mean + (CONF * stddev / Math.sqrt(trials));
     }
 
     public static void main(String[] args) {
         int n = 200;
         int t = 100;
 
-        if(args.length == 2) {
+        if (args.length == 2) {
             n = Integer.parseInt(args[0]);
             t = Integer.parseInt(args[1]);
         }

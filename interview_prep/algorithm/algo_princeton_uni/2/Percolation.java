@@ -5,6 +5,8 @@ public class Percolation {
     private final boolean[] opened;
     private final int n;
     private final int firstReserved, secondReserved;
+    private int numOfSitesOpen = 0;
+
     public Percolation(int size) {
         this.n = size;
         firstReserved = size * size;
@@ -26,6 +28,7 @@ public class Percolation {
                 up = index - n,
                 down = index + n;
         opened[index] = true;
+        numOfSitesOpen++;
         if (y == 1) {
             weightedQuickUnionUF.union(index, firstReserved);
         } else if (y == n) {
@@ -43,24 +46,16 @@ public class Percolation {
         return weightedQuickUnionUF.find(firstReserved) == weightedQuickUnionUF.find(secondReserved);
     }
 
-    public int numberOfOpenSites(){
-        int count = 0;
-            for (boolean open : opened) {
-            if (open) {
-                count++;
-            }
-        }
-        return count;
-    
+    public int numberOfOpenSites() {
+        return numOfSitesOpen;
     }
-
 
     private void connectIfIsOpened(int main, int... others) {
-    for (int site : others) {
-    if (neighbourIsOpened(main, site)) {
-    weightedQuickUnionUF.union(main, site);
-    }
-    }
+        for (int site : others) {
+            if (neighbourIsOpened(main, site)) {
+                weightedQuickUnionUF.union(main, site);
+            }
+        }
     }
 
     private boolean neighbourIsOpened(int first, int second) {
