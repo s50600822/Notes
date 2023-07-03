@@ -25,16 +25,16 @@ public class PercolationStats {
             while (!percolation.percolates()) {
                 int row = randomStep(n);
                 int col = randomStep(n);
-                if(!visited[row - 1][col - 1]){
+                if(!visited[row - 1][col - 1]) {
                     if (!percolation.isOpen(row, col)) {
                         visited[row - 1][col - 1] = true;
                         percolation.open(row, col);
                         openSites++;
                     }
-                    //System.out.println("Open Sites: " + openSites);
+                    // System.out.println("Open Sites: " + openSites);
                     visited[row - 1][col - 1] = true;
                 } else {
-                    //System.out.println(String.format("skipped(%d, %d)", row, col));
+                    // System.out.println(String.format("skipped(%d, %d)", row, col));
                 }
             }
 
@@ -65,13 +65,12 @@ public class PercolationStats {
         int n = 200;
         int t = 100;
 
-        if(args.length == 2){
+        if(args.length == 2) {
             n = Integer.parseInt(args[0]);
-           t = Integer.parseInt(args[1]);
+            t = Integer.parseInt(args[1]);
         }
 
-        PercolationStats stats = new PercolationStats(n, t);
-
+        PercolationStats stats = new PercolationStats(n, t);    
         System.out.println("Mean: " + stats.mean());
         System.out.println("Standard Deviation: " + stats.stddev());
         System.out.println("95% Confidence Interval: [" + stats.confidenceLo() + ", " + stats.confidenceHi() + "]");

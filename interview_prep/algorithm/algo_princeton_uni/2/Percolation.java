@@ -3,10 +3,10 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 public class Percolation {
     private final WeightedQuickUnionUF weightedQuickUnionUF;
     private final boolean[] opened;
-    private final int N;
+    private final int n;
     private final int firstReserved, secondReserved;
     public Percolation(int size) {
-        this.N = size;
+        this.n = size;
         firstReserved = size * size;
         secondReserved = firstReserved + 1;
         weightedQuickUnionUF = new WeightedQuickUnionUF(secondReserved + 1);
@@ -23,12 +23,12 @@ public class Percolation {
         int index = xyTo1D(y, x),
                 right = index + 1,
                 left = index - 1,
-                up = index - N,
-                down = index + N;
+                up = index - n,
+                down = index + n;
         opened[index] = true;
         if (y == 1) {
             weightedQuickUnionUF.union(index, firstReserved);
-        } else if (y == N) {
+        } else if (y == n) {
             weightedQuickUnionUF.union(index, secondReserved);
         }
         connectIfIsOpened(index, right, left, up, down);
@@ -70,12 +70,12 @@ public class Percolation {
     }
 
     private void validate(int x, int y) {
-        if (x <= 0 || x > N || y <= 0 || y > N) {
-            throw new IndexOutOfBoundsException("Whatitsays");
+        if (x <= 0 || x > n || y <= 0 || y > n) {
+            throw new IllegalArgumentException("Whatitsays");
         }
     }
 
     private int xyTo1D(int y, int x) {
-        return N * (y - 1) + x - 1;
+        return n * (y - 1) + x - 1;
     }
 }
