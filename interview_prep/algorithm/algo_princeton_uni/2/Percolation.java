@@ -1,87 +1,82 @@
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
-
 public class Percolation {
-    private final WeightedQuickUnionUF weightedQuickUnionUF;
-    private final boolean[] opened;
-    private final int n;
-    private final int firstReserved, secondReserved;
-    private int numOfSitesOpen = 0;
-
-    public Percolation(int size) {
-        if (size <= 0) {
-            throw new IllegalArgumentException("Invalid grid size");
-        }        
-        this.n = size;
-        firstReserved = size * size;
-        secondReserved = firstReserved + 1;
-        int gridSize = (size > 1) ? secondReserved + 1 : 2; 
-        weightedQuickUnionUF = new WeightedQuickUnionUF(gridSize);
-        opened = new boolean[firstReserved];
-    }
-
-    public boolean isOpen(int y, int x) {
-        validate(x, y);
-        return opened[to1Dimension(y, x)];
-    }
-
-    public void open(int y, int x) {
-        validate(x, y);
-        int index = to1Dimension(y, x),
-                right = index + 1,
-                left = index - 1,
-                up = index - n,
-                down = index + n;
-        opened[index] = true;
-        numOfSitesOpen++;
-        if (y == 1) {
-            weightedQuickUnionUF.union(index, firstReserved);
-        } else if (y == n) {
-            weightedQuickUnionUF.union(index, secondReserved);
+  private final int n;
+  private int openedSites;
+  private boolean[] sites;
+  private final WeightedQuickUnionUF uf;
+  private final WeightedQuickUnionUF fuf;
+  public Percolation(int n) {
+	  if (n <= 0)
+	    throw new IllegalArgumentException();
+	  sites = new boolean[ n * n ];
+	  uf = new WeightedQuickUnionUF(n * n + 2);
+	  fuf = new WeightedQuickUnionUF(n * n + 1);
+	  this.n = n;
+	  if (n == 1) {
+	      uf.union(0, 1);
+	      uf.union(0, 2);
+	      fuf.union(0, 1);
+	  } else {
+        for (int i = 0; i < n; i++) {
+            uf.union(i, n * n); 
+            uf.union(i + (n-1) * n, n * n + 1);
+            fuf.union(i, n * n); 
         }
-        connectIfIsOpened(index, right, left, up, down);
-    }
+	  }
+  }
+  public void open(int row, int col) {
+	  if (row < 1 || row > n || col < 1 || col > n)
+		  throw new IllegalArgumentException();
+	  if (!isOpen(row, col)) {
+		  openedSites++;
+	  }
+	  sites[col-1 + n*(row-1)] = true;
+	  if (0 < row-1 && row-1 <= n && isOpen(row-1, col)) {
+		  uf.union(col-1 + n*(row-1), col-1 + n*(row-2));
+		  fuf.union(col-1 + n*(row-1), col-1 + n*(row-2));
+	  }
+	  if (0 < row+1 && row+1 <= n && isOpen(row+1, col)) {
+		  uf.union(col-1 + n*(row-1), col-1 + n*row);
+		  fuf.union(col-1 + n*(row-1), col-1 + n*row);
+	  }
+	  if (0 < col-1 && col-1 <= n && isOpen(row, col-1)) {
+		  uf.union(col-1 + n*(row-1), col-2 + n*(row-1));
+		  fuf.union(col-1 + n*(row-1), col-2 + n*(row-1));
+	  }
+	  if (0 < col+1 && col+1 <= n && isOpen(row, col+1)) {
+		  uf.union(col-1 + n*(row-1), col + n*(row-1));
+		  fuf.union(col-1 + n*(row-1), col + n*(row-1));
+	  }
+  }
+  public boolean isOpen(int row, int col) {
+	  if (row < 1 || row > n || col < 1 || col > n)
+		  throw new IllegalArgumentException();
+	  return sites[col-1 + n*(row-1)];
+  }
 
-    public boolean isFull(int y, int x) {
-        validate(x, y);
-        return weightedQuickUnionUF.find(to1Dimension(y, x)) == weightedQuickUnionUF.find(firstReserved);
-    }
+  public boolean isFull(int row, int col) {
+	  if (row < 1 || row > n || col < 1 || col > n)
+		  throw new IllegalArgumentException();
+	  if (isOpen(row, col)) {
+		  if (uf.find(col - 1 + n * (row - 1)) == uf.find(n * n) && fuf.find(col - 1 + n * (row - 1)) == fuf.find(n * n)) {
+			  return true;
+		  }
+		  else return false;
+	  }
+	  else return false;
+  }
+  
+  public int numberOfOpenSites() {
+	  return openedSites;
+  }
 
-    public boolean percolates() {
-        if (1 == n) {
-            return opened[0];
-        }
-        return weightedQuickUnionUF.find(firstReserved) == weightedQuickUnionUF.find(secondReserved);
-    }
+  public boolean percolates() {
+      if (n == 1) {
+	  return connected(1, 2) && isOpen(1, 1);
+      } else return connected(n * n, n * n + 1);
+  }
 
-    public int numberOfOpenSites() {
-        return numOfSitesOpen;
-    }
-
-    private void connectIfIsOpened(int main, int... others) {
-        for (int site : others) {
-            if (neighbourIsOpened(main, site)) {
-                weightedQuickUnionUF.union(main, site);
-            }
-        }
-    }
-
-    private boolean neighbourIsOpened(int first, int second) {
-        return (first > second ? second >= 0 : second < firstReserved)
-                && opened[second]
-                && !(weightedQuickUnionUF.find(first) == weightedQuickUnionUF.find(second));
-    }
-
-    private void validate(int x, int y) {
-        if (x <= 0 || x > n || y <= 0 || y > n) {
-            throw new IllegalArgumentException("Whatitsays");
-        }
-    }
-
-    /**
-     * present a cell in a grid by 1 dimension array, eg: in a 5x5 grid:
-     *   0x0 -> 0, 0x1-> 1, 0x2 -> 2, 1x0 -> 5, 1x1 -> 6
-     */
-    private int to1Dimension(int y, int x) {
-        return n * (y - 1) + x - 1;
-    }
+  private boolean connected(int p, int q) {
+    return uf.find(p) == uf.find(q);
+  }
 }

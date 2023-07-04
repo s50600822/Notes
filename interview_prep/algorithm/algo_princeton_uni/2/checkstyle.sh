@@ -1,1 +1,1 @@
-java -jar /Users/hoaphan/Downloads/checkstyle-10.12.1-all.jar -c google_checks.xml *.java
+java -jar checkstyle-10.12.1-all.jar -c google_checks.xml *.java
