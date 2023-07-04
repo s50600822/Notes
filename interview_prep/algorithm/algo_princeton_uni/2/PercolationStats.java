@@ -44,6 +44,9 @@ public class PercolationStats {
 
         mean = StdStats.mean(thresholds);
         stddev = StdStats.stddev(thresholds);
+        if (1 == thresholds.length) {
+            stddev = 0;
+        }
     }
 
     public double mean() {
@@ -72,9 +75,9 @@ public class PercolationStats {
         }
 
         PercolationStats stats = new PercolationStats(n, t);    
-        System.out.println("Mean: " + stats.mean());
-        System.out.println("Standard Deviation: " + stats.stddev());
-        System.out.println("95% Confidence Interval: [" + stats.confidenceLo() + ", " + stats.confidenceHi() + "]");
+        System.out.println("mean = " + stats.mean());
+        System.out.println("stddev = " + stats.stddev());
+        System.out.println("95% confidence interval = [" + stats.confidenceLo() + ", " + stats.confidenceHi() + "]");
     }
 
     private int randomStep(int n) {

@@ -8,21 +8,25 @@ public class Percolation {
     private int numOfSitesOpen = 0;
 
     public Percolation(int size) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Invalid grid size");
+        }        
         this.n = size;
         firstReserved = size * size;
         secondReserved = firstReserved + 1;
-        weightedQuickUnionUF = new WeightedQuickUnionUF(secondReserved + 1);
+        int gridSize = (size > 1) ? secondReserved + 1 : 2; 
+        weightedQuickUnionUF = new WeightedQuickUnionUF(gridSize);
         opened = new boolean[firstReserved];
     }
 
     public boolean isOpen(int y, int x) {
         validate(x, y);
-        return opened[xyTo1D(y, x)];
+        return opened[to1Dimension(y, x)];
     }
 
     public void open(int y, int x) {
         validate(x, y);
-        int index = xyTo1D(y, x),
+        int index = to1Dimension(y, x),
                 right = index + 1,
                 left = index - 1,
                 up = index - n,
@@ -39,10 +43,13 @@ public class Percolation {
 
     public boolean isFull(int y, int x) {
         validate(x, y);
-        return weightedQuickUnionUF.find(xyTo1D(y, x)) == weightedQuickUnionUF.find(firstReserved);
+        return weightedQuickUnionUF.find(to1Dimension(y, x)) == weightedQuickUnionUF.find(firstReserved);
     }
 
     public boolean percolates() {
+        if (1 == n) {
+            return opened[0];
+        }
         return weightedQuickUnionUF.find(firstReserved) == weightedQuickUnionUF.find(secondReserved);
     }
 
@@ -70,7 +77,11 @@ public class Percolation {
         }
     }
 
-    private int xyTo1D(int y, int x) {
+    /**
+     * present a cell in a grid by 1 dimension array, eg: in a 5x5 grid:
+     *   0x0 -> 0, 0x1-> 1, 0x2 -> 2, 1x0 -> 5, 1x1 -> 6
+     */
+    private int to1Dimension(int y, int x) {
         return n * (y - 1) + x - 1;
     }
 }
