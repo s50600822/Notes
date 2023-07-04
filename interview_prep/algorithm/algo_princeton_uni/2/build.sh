@@ -1,4 +1,5 @@
 # https://coursera.cs.princeton.edu/algs4/assignments/percolation/specification.php
+
 javac -cp .:algs4.jar Percolation.java
 javac -cp .:algs4.jar PercolationStats.java
 
