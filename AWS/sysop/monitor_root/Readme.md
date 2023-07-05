@@ -1,0 +1,1 @@
+https://aws.amazon.com/blogs/mt/monitor-and-notify-on-aws-account-root-user-activity/
