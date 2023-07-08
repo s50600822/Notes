@@ -1,0 +1,26 @@
+{
+	"version": "0",
+	"id": "3ceaa5a8-6b0c-fc3f-d19c-4c6aabc84617",
+	"detail-type": "AWS Health Event",
+	"source": "aws.health",
+	"account": "account_id_goes_here",
+	"time": "2020-09-01T20:58:45Z",
+	"region": "us-east-1",
+	"resources": ["access_key_goes_here"],
+	"detail": {
+		"eventArn": "arn:aws:health:us-east-1::event/RISK/AWS_RISK_IAM_QUARANTINE/AWS_RISK_IAM_QUARANTINE-EFCXtKC0FS",
+		"service": "RISK",
+		"eventTypeCode": "AWS_RISK_IAM_QUARANTINE",
+		"eventTypeCategory": "issue",
+		"startTime": "Tue, 1 Sep 2020 20:58:45 GMT",
+		"endTime": "Tue, 15 Sep 2020 20:58:45 GMT",
+		"eventDescription": [{
+			"language": "en_US",
+			"latestDescription": "Your AWS Account may be compromised! We have opened a Support Case with more details. Please visit the AWS Support Center https://aws.amazon.com/support to review the case we've opened for you and take action immediately."
+		}],
+		"affectedEntities": [{
+			"entityValue": "access_key_goes_here",
+			"tags": {}
+		}]
+	}
+}

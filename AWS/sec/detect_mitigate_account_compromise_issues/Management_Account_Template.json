@@ -1,0 +1,303 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Creates an event rule to invoke Lambda in response to a health risk event",
+	"Parameters": {
+		"SNSTopicName": {
+			"Type": "String",
+			"Description": "Enter the Organization ID for which member accounts can send events.",
+			"Default": "SecurityAlert"
+		},
+		"SubscriptionEndpoint": {
+			"Type": "String",
+			"Description": "Enter the endpoint for SNS Topic above.",
+			"Default": "+1+phone_number"
+		},
+		"AssumeRole": {
+			"Type": "String",
+			"Description": "Enter the Role name in member account to be assumed by Lambda.",
+			"Default": "CloudAdmin"
+		},
+		"OrgnizationID": {
+			"Type": "String",
+			"Description": "Enter the Organization ID for which member accounts can send events."
+		}
+	},
+	"Resources": {
+		"EventBusPolicy": {
+			"Type": "AWS::Events::EventBusPolicy",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"Action": "events:PutEvents",
+				"Principal": "*",
+				"StatementId": "MyStatement",
+				"Condition": {
+					"Type": "StringEquals",
+					"Key": "aws:PrincipalOrgID",
+					"Value": { "Ref": "OrgnizationID" }
+				}
+			}
+		},
+		"SNSTopic": {
+			"Type": "AWS::SNS::Topic",
+			"Properties": {
+				"DisplayName": "Security Alert",
+				"Subscription": [{
+					"Endpoint": {
+						"Ref": "SubscriptionEndpoint"
+					},
+					"Protocol": "sms"
+				}],
+				"TopicName": {
+					"Ref": "SNSTopicName"
+				}
+			}
+		},
+		"LambdaExeRole": {
+			"Type": "AWS::IAM::Role",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"RoleName": "Lambda_Execution_Role_For_CWE",
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Principal": {
+							"Service": ["lambda.amazonaws.com"]
+						},
+						"Action": ["sts:AssumeRole"]
+					}]
+				},
+				"Path": "/",
+				"Policies": [{
+					"PolicyName": "Lambda_Permissions",
+					"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [{
+							"Effect": "Allow",
+							"Action": "*",
+							"Resource": "*"
+						}]
+					}
+				}]
+			}
+		},
+		"LambdaFunction": {
+			"Type": "AWS::Lambda::Function",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"FunctionName": "Process_AWS_RISK_Events",
+				"Description": "Process AWS RISK events.",
+				"Handler": "index.lambda_handler",
+				"Role": {
+					"Fn::GetAtt": [
+						"LambdaExeRole",
+						"Arn"
+					]
+				},
+				"Runtime": "python3.7",
+				"Timeout": 120,
+				"MemorySize": 128,
+				"Code": {
+					"ZipFile": {
+						"Fn::Join": [
+							"", [
+								"import json\n",
+								"import boto3\n",
+								"import os\n",
+								"\n",
+								"from urllib.request import Request, urlopen\n",
+								"from urllib.error import URLError, HTTPError\n",
+								"\n",
+								"# Slack integration\n",
+								"SEND_SLACK_MESSAGE = False\n",
+								"SLACK_CHANNEL = ''\n",
+								"HOOK_URL = ''\n",
+								"\n",
+								"sns_client = boto3.client('sns')\n",
+								"sts_client = boto3.client('sts')\n",
+								"\n",
+								"def lambda_handler(event, context):\n",
+								"  # preserve event data\n",
+								"  print(event)\n",
+								"\n",
+								"  exposed_credentials = ''\n",
+								"  account_id = event['account']\n",
+								"  access_keys = ','.join(event['resources'])\n",
+								"\n",
+								"  for access_key in event['resources']:\n",
+								"    if len(access_key) == 20:\n",
+								"      service_client = get_service_client('iam', account_id)\n",
+								"      if service_client != '':\n",
+								"        username = get_username_from_key(service_client, access_key)\n",
+								"        exposed_credentials = exposed_credentials +  '\\nUsername: ' + username + '\\nAccess Key: ' + access_key\n",
+								"        send_notifications(event, account_id, exposed_credentials)\n",
+								"        disable_access_key(service_client, username, access_key)\n",
+								"    else:\n",
+								"      send_notifications(event, account_id, exposed_credentials)\n",
+								"\n",
+								"  return 'Done.'\n",
+								"\n",
+								"\n",
+								"def send_notifications(event, account_id, exposed_credentials):\n",
+								"\n",
+								"  try:\n",
+								"\n",
+								"    event_time = event['time']\n",
+								"    event_type = event['detail']['eventTypeCode']\n",
+								"\n",
+								"    email_json_message = {\n",
+								"      'eventType' : event_type,\n",
+								"      'event_time' : event_time,\n",
+								"      'account_id' : account_id,\n",
+								"      'credentials' : exposed_credentials\n",
+								"    }\n",
+								"\n",
+								"    sms_message = 'Event Type: ' + event_type + \\\n",
+								"      '\\nEvent Time: ' + event_time + \\\n",
+								"      '\\nAccount ID: ' + account_id + exposed_credentials\n",
+								"\n",
+								"    email_message = 'Account compromise detected.' \\\n",
+								"      '\\nAccount ID: ' + account_id + '\\n' + exposed_credentials\n",
+								"\n",
+								"    # DON'T FORGET TO CHANGE THE TOPIC ARN BELOW\n",
+								"    response = sns_client.publish(\n",
+								"    Subject = 'Credential Exposed',\n",
+								"    Message = json.dumps({\n",
+								"      'default': json.dumps(email_json_message),\n",
+								"      'sms': sms_message,\n",
+								"      'email': email_message\n",
+								"    }),\n",
+								"    TopicArn = '", { "Ref": "SNSTopic" }, "',\n",
+								"    MessageStructure = 'json')\n",
+								"\n",
+								"    print('SNS: Notification sent.')\n",
+								"\n",
+								"    if SEND_SLACK_MESSAGE == True:\n",
+								"      send_Slack_Message(sms_message)\n",
+								"\n",
+								"  except Exception as e:\n",
+								"    print('Error occurred: ' + str(e))\n",
+								"\n",
+								"\n",
+								"def send_Slack_Message(sms_message):\n",
+								"  try:\n",
+								"\n",
+								"    slack_message = {\n",
+								"    'channel': SLACK_CHANNEL,\n",
+								"    'Content': 'Account compromise issue detected.\\n' + sms_message\n",
+								"    }\n",
+								"\n",
+								"    req = Request(HOOK_URL, json.dumps(slack_message).encode('utf-8'))\n",
+								"\n",
+								"    response = urlopen(req)\n",
+								"    response.read()\n",
+								"    print('SLACK: Message posted to {0}'.format(SLACK_CHANNEL))\n",
+							    "\n",
+								"  except HTTPError as e:\n",
+								"    print('SLACK: Request failed: {0} {1}'.format(e.code, e.reason))\n",
+								"  except URLError as e:\n",
+								"    print('SLACK: Server connection failed: {0}'.format(e.reason))\n",
+								"\n",
+								"\n",
+								"def get_service_client(service_name, member_acct_id):\n",
+								"\n",	
+								"  try:\n",
+								"\n",
+								"    # CHANGE THE ROLE NAME IN MEMBER ACCOUNTS HERE\n",
+								"    assume_role_creds = sts_client.assume_role(\n",
+								"      RoleArn = 'arn:aws:iam::' + member_acct_id + ':role/",{ "Ref": "AssumeRole" },"',\n",
+								"      RoleSessionName = 'sts_role_to_member_account'\n",
+								"    )\n",
+								"\n",
+								"    return boto3.client(service_name,\n",
+								"      aws_access_key_id = assume_role_creds['Credentials']['AccessKeyId'],\n",
+								"      aws_secret_access_key = assume_role_creds['Credentials']['SecretAccessKey'],\n",
+								"      aws_session_token = assume_role_creds['Credentials']['SessionToken']\n",
+								"    )\n",
+								"\n",
+								"  except Exception as e:\n",
+								"    print('Error occurred: ' + str(e))\n",
+								"    return ''\n",
+								"\n",
+								"\n",
+								"def get_username_from_key(service_client, access_key_id):\n",
+								"\n",
+								"  try:\n",
+								"\n",
+								"    response = service_client.get_access_key_last_used(\n",
+								"      AccessKeyId=access_key_id\n",
+								"    )\n",
+								"  except Exception as e:\n",
+								"    print('Unable to retrieve username')\n",
+								"    print(e)\n",
+								"    # return empty if user doesn't exist\n",
+								"    return ''\n",
+								"  return response['UserName']\n",
+								"\n",
+								"\n",
+								"def disable_access_key(service_client, username, access_key_id):\n",
+								"\n",
+								"  try:\n",
+								"\n",
+								"    response = service_client.update_access_key(\n",
+								"      UserName = username,\n",
+								"      AccessKeyId = access_key_id,\n",
+								"      Status = 'Inactive'\n",
+								"    )\n",
+								"    print('Access key disabled: ' + access_key_id)\n",
+								"\n",
+								"  except Exception as e:\n",
+								"    print('Unable to disable access key')\n",
+								"    print(e)\n",
+								"\n",
+								"\n"
+							]
+						]
+					}
+				}
+			}
+		},
+		"CloudWatchEventRule": {
+			"Type": "AWS::Events::Rule",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"Name": "Send_AWS_RISK_Events_To_Lambda",
+				"Description": "Send AWS RISK events to Lambda for processing.",
+				"EventPattern": {
+					"source": [
+						"aws.health"
+					],
+					"detail-type": [
+						"AWS Health Event"
+					],
+					"detail": {
+						"service": [
+							"RISK"
+						]
+					}
+				},
+				"State": "ENABLED",
+				"Targets": [{
+					"Arn": {
+						"Fn::GetAtt": [
+							"LambdaFunction",
+							"Arn"
+						]
+					},
+					"Id": "cwe"
+				}]
+			}
+		},
+		"PermissionForEventsToInvokeLambda": {
+			"Type": "AWS::Lambda::Permission",
+			"Properties": {
+				"FunctionName": "Process_AWS_RISK_Events",
+				"Action": "lambda:InvokeFunction",
+				"Principal": "events.amazonaws.com",
+				"SourceArn": {
+					"Fn::GetAtt": ["CloudWatchEventRule", "Arn"]
+				}
+			}
+		}
+	}
+}

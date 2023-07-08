@@ -1,0 +1,87 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Creates a CWE rule to send AWS RISK events to Management Account",
+	"Parameters": {
+		"ManagementAccountId": {
+			"Type": "String",
+			"Description": "Enter the account ID which will receive events from member accounts."
+		}
+	},
+	"Resources": {
+		"RoleForMemberAccount": {
+			"Type": "AWS::IAM::Role",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"RoleName": "Allows_AWS_RISK_to_Invoke_Event_Bus",
+				"Description": "Role to allow AWS Events service to send events to event bus in management account.",
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Principal": {
+							"Service": ["events.amazonaws.com"]
+						},
+						"Action": ["sts:AssumeRole"]
+					}]
+				},
+				"Path": "/"
+			}
+		},
+		"RolePolicies": {
+			"Type": "AWS::IAM::Policy",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"PolicyName": "Allows_AWS_RISK_to_send_events_to_mgmt_acct",
+				"PolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Action": "events:PutEvents",
+						"Resource": {
+							"Fn::Join": ["", ["arn:aws:events:us-east-1:", {
+								"Ref": "ManagementAccountId"
+							}, ":event-bus/default"]]
+						}
+					}]
+				},
+				"Roles": [{
+					"Ref": "RoleForMemberAccount"
+				}]
+
+			}
+		},
+		"SendEventsToManagementAccountRule": {
+			"Type": "AWS::Events::Rule",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"Name": "Send_AWS_RISK_Events_To_Management_Account",
+				"Description": "Send AWS RISK events to default event bus in management account.",
+				"EventPattern": {
+					"source": [
+						"aws.health"
+					],
+					"detail-type": [
+						"AWS Health Event"
+					],
+					"detail": {
+						"service": [
+							"RISK"
+						]
+					}
+				},
+				"State": "ENABLED",
+				"Targets": [{
+					"Arn": {
+						"Fn::Join": ["", ["arn:aws:events:us-east-1:", {
+							"Ref": "ManagementAccountId"
+						}, ":event-bus/default"]]
+					},
+					"Id": "eventbus",
+					"RoleArn": {
+						"Fn::GetAtt": ["RoleForMemberAccount","Arn"]
+					}
+				}]
+			}
+		}
+	}
+}

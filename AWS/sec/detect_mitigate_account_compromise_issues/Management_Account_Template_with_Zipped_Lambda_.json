@@ -1,0 +1,119 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Creates an event rule to invoke Lambda in response to a health risk event",
+	"Parameters": {
+		"OrgnizationID": {
+			"Type": "String",
+			"Description": "Enter the Organization ID for which member accounts can send events."
+		}
+	},
+	"Resources": {
+		"EventBusPolicy": {
+			"Type": "AWS::Events::EventBusPolicy",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"Action": "events:PutEvents",
+				"Principal": "*",
+				"StatementId": "MyStatement",
+				"Condition": {
+					"Type": "StringEquals",
+					"Key": "aws:PrincipalOrgID",
+					"Value": { "Ref": "OrgnizationID" }
+				}
+			}
+		},
+		"LambdaExeRole": {
+			"Type": "AWS::IAM::Role",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"RoleName": "Lambda_Execution_Role_For_CWE",
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+						"Effect": "Allow",
+						"Principal": {
+							"Service": ["lambda.amazonaws.com"]
+						},
+						"Action": ["sts:AssumeRole"]
+					}]
+				},
+				"Path": "/",
+				"Policies": [{
+					"PolicyName": "Lambda_Permissions",
+					"PolicyDocument": {
+						"Version": "2012-10-17",
+						"Statement": [{
+							"Effect": "Allow",
+							"Action": "*",
+							"Resource": "*"
+						}]
+					}
+				}]
+			}
+		},
+		"LambdaFunction": {
+			"Type": "AWS::Lambda::Function",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"FunctionName": "Process_AWS_RISK_Events",
+				"Description": "Process AWS RISK events.",
+				"Handler": "Lambda_Process_AWS_RISK_Events.lambda_handler",
+				"Role": {
+					"Fn::GetAtt": [
+						"LambdaExeRole",
+						"Arn"
+					]
+				},
+				"Code": {
+					"S3Bucket": "brian-lab-east-1",
+					"S3Key": "Lambda_Process_AWS_RISK_Events.zip"
+				},
+				"Runtime": "python3.8",
+				"Timeout": 3,
+				"MemorySize": 128
+			}
+		},
+		"CloudWatchEventRule": {
+			"Type": "AWS::Events::Rule",
+			"DeletionPolicy": "Delete",
+			"Properties": {
+				"Name": "Send_AWS_RISK_Events_To_Lambda",
+				"Description": "Send AWS RISK events to Lambda for processing.",
+				"EventPattern": {
+					"source": [
+						"aws.health"
+					],
+					"detail-type": [
+						"AWS Health Event"
+					],
+					"detail": {
+						"service": [
+							"RISK"
+						]
+					}
+				},
+				"State": "ENABLED",
+				"Targets": [{
+					"Arn": {
+						"Fn::GetAtt": [
+							"LambdaFunction",
+							"Arn"
+						]
+					},
+					"Id": "cwe"
+				}]
+			}
+		},
+		"PermissionForEventsToInvokeLambda": {
+			"Type": "AWS::Lambda::Permission",
+			"Properties": {
+				"FunctionName": "Process_AWS_RISK_Events",
+				"Action": "lambda:InvokeFunction",
+				"Principal": "events.amazonaws.com",
+				"SourceArn": {
+					"Fn::GetAtt": ["CloudWatchEventRule", "Arn"]
+				}
+			}
+		}
+	}
+}
