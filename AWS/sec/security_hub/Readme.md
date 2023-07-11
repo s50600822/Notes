@@ -1,0 +1,2 @@
+https://aws.amazon.com/blogs/security/how-to-import-aws-config-rules-evaluations-findings-security-hub/
+https://aws.amazon.com/about-aws/whats-new/2022/06/aws-security-hub-config-managed-custom-rule-evaluation-results/
