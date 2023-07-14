@@ -1,0 +1,1 @@
+[EventBridge - CloudTrail - AWS API Calls](https://github.com/ScaleSec/aws-eventbridge-cis-alarms/blob/main/README.md)
