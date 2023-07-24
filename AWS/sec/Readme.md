@@ -10,3 +10,5 @@
 [how-to-clone-an-aws-cloudhsm-cluster-across-regions](https://aws.amazon.com/blogs/security/how-to-clone-an-aws-cloudhsm-cluster-across-regions/)
 
 [aws-kms-hsm-fips-security-level-3](https://aws.amazon.com/about-aws/whats-new/2023/05/aws-kms-hsm-fips-security-level-3/)
+
+[rotate SAM cert](https://docs.aws.amazon.com/singlesignon/latest/userguide/rotatesamlcert.html)
