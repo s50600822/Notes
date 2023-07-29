@@ -47,6 +47,9 @@ ApprovalFlowEventTriggerForNewRepo
 ##### Input Path
 ```
 {
+  "id": "$.id",
+  "detail-type": "$.detail-type",
+  "source": "$.source",
   "repo": "$.detail.repositoryName",
   "eventTime": "$.time"
 }
@@ -56,7 +59,11 @@ ApprovalFlowEventTriggerForNewRepo
 
 ```
 {
- "detail": {
+  "version": "0",
+   "id": "<id>",
+   "detail-type": "<detail-type>",
+   "source":"<source>",
+   "detail": {
          "eventTime": "<eventTime>",
          "eventSource": "codecommit.amazonaws.com",
          "eventName": "CreateRepository",
@@ -66,4 +73,28 @@ ApprovalFlowEventTriggerForNewRepo
          "eventType": "AwsApiCall"
      }
 }
+```
+
+```
+{
+ "version": "0",
+ "id": "36eb8523-97d0-4518-b33d-ee3579ff19f0",
+ "detail-type": "AWS API Call via CloudTrail",
+ "source": "aws.codecommit",
+ "detail": {
+         "eventTime": "2016-02-20T01:09:13Z",
+         "eventSource": "codecommit.amazonaws.com",
+         "eventName": "CreateRepository",
+         "requestParameters": {
+            "repositoryName": ""
+         },
+         "eventType": "AwsApiCall"
+     }
+ }
+```
+
+
+to switch to ec2-user
+```
+sudo su ec2-user
 ```
