@@ -17,3 +17,5 @@
 
 
 [how-to-use-amazon-guardduty-and-aws-waf-v2-to-automatically-block-suspicious-hosts](https://aws.amazon.com/blogs/security/how-to-use-amazon-guardduty-and-aws-waf-v2-to-automatically-block-suspicious-hosts/)
+
+[monitor changes to SG](https://repost.aws/en/knowledge-center/monitor-security-group-changes-ec2)
