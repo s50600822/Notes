@@ -1,0 +1,52 @@
+{
+  "vpc-provider:account=798614643766:filter.isDefault=true:filter.owner-id=798614643766:filter.vpc-id=vpc-22d67546:region=ap-southeast-2:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-22d67546",
+    "vpcCidrBlock": "172.31.0.0/16",
+    "ownerAccountId": "798614643766",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-0f5c28c50a297d9e3",
+            "cidr": "172.31.1.0/28",
+            "availabilityZone": "ap-southeast-2a",
+            "routeTableId": "rtb-a1d5b7c5"
+          }
+        ]
+      }
+    ]
+  },
+  "availability-zones:account=798614643766:region=ap-southeast-2": [
+    "ap-southeast-2a",
+    "ap-southeast-2b",
+    "ap-southeast-2c"
+  ],
+  "endpoint-service-availability-zones:account=798614643766:region=ap-southeast-2:serviceName=com.amazonaws.ap-southeast-2.ec2": [
+    "ap-southeast-2a",
+    "ap-southeast-2b",
+    "ap-southeast-2c"
+  ],
+  "endpoint-service-availability-zones:account=798614643766:region=ap-southeast-2:serviceName=com.amazonaws.ap-southeast-2.ssm": [
+    "ap-southeast-2a",
+    "ap-southeast-2b",
+    "ap-southeast-2c"
+  ],
+  "endpoint-service-availability-zones:account=798614643766:region=ap-southeast-2:serviceName=com.amazonaws.ap-southeast-2.ssm-contacts": [
+    "ap-southeast-2a",
+    "ap-southeast-2b",
+    "ap-southeast-2c"
+  ],
+  "endpoint-service-availability-zones:account=798614643766:region=ap-southeast-2:serviceName=com.amazonaws.ap-southeast-2.ssmmessages": [
+    "ap-southeast-2a",
+    "ap-southeast-2b",
+    "ap-southeast-2c"
+  ],
+  "endpoint-service-availability-zones:account=798614643766:region=ap-southeast-2:serviceName=com.amazonaws.ap-southeast-2.ssm-incidents": [
+    "ap-southeast-2a",
+    "ap-southeast-2b",
+    "ap-southeast-2c"
+  ]
+}
