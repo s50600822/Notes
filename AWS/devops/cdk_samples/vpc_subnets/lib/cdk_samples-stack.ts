@@ -1,28 +1,38 @@
 import { Duration, Stack, StackProps } from 'aws-cdk-lib';
-import * as sns from 'aws-cdk-lib/aws-sns';
-import * as subs from 'aws-cdk-lib/aws-sns-subscriptions';
-import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-
 import { Construct } from 'constructs';
 
 
+
+function addEC2s(vpc: ec2.Vpc, construct: Construct){
+  const instanceProps: ec2.InstanceProps = {
+    vpc,
+    instanceType: new ec2.InstanceType('t2.micro'),
+    machineImage: new ec2.AmazonLinuxImage()
+  };
+
+  new ec2.Instance(construct, 'EC2InSemiPrivateSubnet1', {
+    ...instanceProps,
+    vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }
+  });
+
+  new ec2.Instance(construct, 'EC2InPrivateSubnet1', {
+    ...instanceProps,
+    vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED }
+  });
+
+  new ec2.Instance(construct, 'EC2InPublicSubnet1', {
+    ...instanceProps,
+    vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC }
+  });
+}
 
 export class CdkSamplesStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const queue = new sqs.Queue(this, 'CdkSamplesQueue', {
-      visibilityTimeout: Duration.seconds(300)
-    });
-
-    const topic = new sns.Topic(this, 'CdkSamplesTopic');
-
-    topic.addSubscription(new subs.SqsSubscription(queue));
-
-
     const vpc = new ec2.Vpc(this, 'my-awesome-vpc', {
-      cidr: '10.0.0.0/16',
+      ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
       natGateways: 1,
       maxAzs: 3,
       subnetConfiguration: [
@@ -43,6 +53,6 @@ export class CdkSamplesStack extends Stack {
         },
       ],
     });
-
+    addEC2s(vpc, this);
   }
 }
