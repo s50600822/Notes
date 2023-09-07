@@ -16,9 +16,6 @@ public class Fib {
     }
 
     public int fib(int n){
-        stream()
-        .limit(n)
-        .forEachOrdered(System.out::println);
         java.util.List<Integer> fibs = new Fib().stream()
         .limit(n)
         .boxed()

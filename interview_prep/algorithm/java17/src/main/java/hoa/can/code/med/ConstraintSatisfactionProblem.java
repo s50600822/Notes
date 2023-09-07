@@ -8,7 +8,7 @@ import java.util.Map;
 public class ConstraintSatisfactionProblem<V, D> {
     private List<V> vars;
     private Map<V, List<D>> domains;
-    private Map<V, List<Constraint<V, D>>> constraints;
+    private Map<V, List<Constraint<V, D>>> constraints = new HashMap<>();
 
     public ConstraintSatisfactionProblem(List<V> vars, Map<V, List<D>> domains) {
         this.vars = vars;
@@ -30,8 +30,6 @@ public class ConstraintSatisfactionProblem<V, D> {
         }
     }
 
-    // Check if the value assignment is consistent by checking all constraints
-    // for the given variable against it
     public boolean consistent(V variable, Map<V, D> assignment) {
         for (Constraint<V, D> constraint : constraints.get(variable)) {
             if (!constraint.satisfied(assignment)) {
@@ -56,22 +54,19 @@ public class ConstraintSatisfactionProblem<V, D> {
 
     private Map<V, D> backtrackingSearch(V unassigned, Map<V, D> assignment) {
         for (D value : domains.get(unassigned)) {
-            // shallow copy of assignment that we can change
-            Map<V, D> localAssignment = new HashMap<>(assignment);
-            localAssignment.put(unassigned, value);
-            // if we're still consistent, we recurse (continue)
-            if (consistent(unassigned, localAssignment)) {
-                Map<V, D> result = backtrackingSearch(localAssignment);
-                // if we didn't find the result, we will end up backtracking
+            Map<V, D> provisionalAssignment = new HashMap<>(assignment);
+            provisionalAssignment.put(unassigned, value);
+            if (consistent(unassigned, provisionalAssignment)) {
+                Map<V, D> result = backtrackingSearch(provisionalAssignment);
                 if (result != null) {
                     return result;
                 }
             }
         }
+        //backtracking
         return null;
     }
 
-    // helper for backtrackingSearch when nothing known yet
     public Map<V, D> backtrackingSearch() {
         return backtrackingSearch(new HashMap<>());
     }
