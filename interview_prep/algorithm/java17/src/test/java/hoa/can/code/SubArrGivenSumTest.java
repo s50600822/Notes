@@ -3,6 +3,8 @@ package hoa.can.code;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import hoa.can.code.ez.SubArrGivenSum;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
@@ -18,6 +20,10 @@ public class SubArrGivenSumTest {
                 res,
                 hoa.can.code.ez.SubArrGivenSum.subarraySum(new int[] { 1,2 }, 1, 2)
         );
+        assertEquals(
+                res,
+                hoa.can.code.ez.SubArrGivenSum.subarraySum(SubArrGivenSum.SLIDING_WINDOWS, new int[] { 1,2 }, 1, 2)
+        );
     }
     @Test
     @DisplayName("https://practice.geeksforgeeks.org/problems/subarray-with-given-sum-1587115621/1")
@@ -29,8 +35,12 @@ public class SubArrGivenSumTest {
                 res,
                 hoa.can.code.ez.SubArrGivenSum.subarraySum(new int[] { 1,2 }, 1, 1)
         );
+        assertEquals(
+                res,
+                hoa.can.code.ez.SubArrGivenSum.subarraySum(SubArrGivenSum.SLIDING_WINDOWS, new int[] { 1,2 }, 1, 1)
+        );
     }
-    
+
     @Test
     @DisplayName("https://practice.geeksforgeeks.org/problems/subarray-with-given-sum-1587115621/1")
     public void test3() {
@@ -41,5 +51,9 @@ public class SubArrGivenSumTest {
                 res,
                 hoa.can.code.ez.SubArrGivenSum.subarraySum(new int[] { 1,2 }, 1, 2)
         );
-    }    
+        assertEquals(
+                res,
+                hoa.can.code.ez.SubArrGivenSum.subarraySum(SubArrGivenSum.SLIDING_WINDOWS, new int[] { 1,2 }, 1, 2)
+        );
+    }
 }
