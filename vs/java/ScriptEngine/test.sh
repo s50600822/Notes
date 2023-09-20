@@ -1,0 +1,1 @@
+java -cp nashorn-core-15.4.jar:asm-9.1.jar:. Test
