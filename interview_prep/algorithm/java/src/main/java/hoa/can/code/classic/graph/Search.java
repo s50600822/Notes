@@ -126,11 +126,13 @@ public class Search {
         while (!frontier.isEmpty()) {
             Node<T> currentNode = frontier.poll();
             T currentState = currentNode.state;
+            System.out.println("currentState: "+currentState);
             if (goalTest.test(currentState)) {
                 return currentNode;
             }
             // check where we can go next and haven't explored
             for (T child : successors.apply(currentState)) {
+                System.out.println("child " +child+", visited:" + explored);
                 if (explored.contains(child)) {
                     continue; // skip children we already explored
                 }

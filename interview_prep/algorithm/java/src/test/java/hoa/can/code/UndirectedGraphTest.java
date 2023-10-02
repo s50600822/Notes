@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class UndirectedGraphTest {
     @Test
@@ -18,9 +19,8 @@ public class UndirectedGraphTest {
                 "Seattle",
                 v -> v.equals("Chicago"),
                 g::neighbor);
-        List<String> path = Search.nodeToPath(bfsResult);
-        assertEquals(List.of("Seattle","Chicago"), path);
-
+        assertNotNull(bfsResult);
+        assertEquals(List.of("Seattle","Chicago"), Search.nodeToPath(bfsResult));
     }
 
     @Test
@@ -31,6 +31,7 @@ public class UndirectedGraphTest {
                 "Seattle",
                 v -> v.equals("Riverside"),
                 g::neighbor);
+        assertNotNull(bfsResult);
         List<String> path = Search.nodeToPath(bfsResult);
         assertEquals("Seattle", path.get(0));
         assertEquals("Riverside", path.get(path.size()-1));
@@ -45,21 +46,23 @@ public class UndirectedGraphTest {
                 "Chicago",
                 v -> v.equals("Seattle"),
                 g::neighbor);
-        List<String> path = Search.nodeToPath(bfsResult);
-        assertEquals(List.of("Chicago","Seattle"), path);
-
+        assertNotNull(bfsResult);
+        assertEquals(List.of("Chicago","Seattle"), Search.nodeToPath(bfsResult));
     }
 
     @Test
     @DisplayName("UndirectedGraphTest4")
     public void test4() {
         UndirectedGraph<String> g = cities();
-        System.out.println(g);
         Search.Node<String> bfsResult = Search.bfs(
                 "Boston",
                 v -> v.equals("Miami"),
                 g::neighbor);
+
+        assertNotNull(bfsResult);
         List<String> path = Search.nodeToPath(bfsResult);
+        assertEquals("Boston", path.get(0));
+        assertEquals("Miami", path.get(path.size()-1));
     }
 
     private UndirectedGraph<String> cities(){
