@@ -1,4 +1,4 @@
-package hoa.can;
+package hoa.can.code;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

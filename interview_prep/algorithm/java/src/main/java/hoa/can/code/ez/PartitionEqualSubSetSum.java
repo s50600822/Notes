@@ -1,7 +1,5 @@
 package hoa.can.code.ez;
 
-import java.util.Arrays;
-
 import util.Array;
 
 public class PartitionEqualSubSetSum {
@@ -12,7 +10,6 @@ public class PartitionEqualSubSetSum {
     }
 
     static int canAddUp(int arr[], int target){
-        System.out.println(String.format("canAddUp %d %s", target, Arrays.toString(arr)));
         if(target==0){
             return 1;
         }
