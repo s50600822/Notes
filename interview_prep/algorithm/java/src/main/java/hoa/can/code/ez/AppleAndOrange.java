@@ -14,8 +14,8 @@ public class AppleAndOrange {
         int b, 
         List<Integer> apples, 
         List<Integer> oranges) {
-        System.out.println(countF(s, t, a, apples));
-        System.out.println(countF(s, t, b, oranges));
+        //System.out.println(countF(s, t, a, apples));
+        //System.out.println(countF(s, t, b, oranges));
     }
 
     public static long countF(        

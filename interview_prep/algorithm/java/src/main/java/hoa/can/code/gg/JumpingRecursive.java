@@ -5,15 +5,15 @@ import java.util.Arrays;
 /**
  * <a href="https://leetcode.com/problems/jump-game/">Desc</a>
  */
-public class JumpingRecursive {
+public class JumpingRecursive implements Jumping {
     final static int NO_WAY = 10000;
 
-    public static boolean canJump(int[] nums) {
+    public boolean canJump(int[] nums) {
         int step = minJumps(nums);
         return (step != NO_WAY);
     }
 
-    public static int minJumps(int[] nums) {
+    public int minJumps(int[] nums) {
         int[] memo = new int[nums.length];
         Arrays.fill(memo, -1);
         int lastIdx = nums.length - 1;

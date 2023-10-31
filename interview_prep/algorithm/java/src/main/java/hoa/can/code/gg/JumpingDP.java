@@ -1,17 +1,15 @@
 package hoa.can.code.gg;
 
-public class JumpingDP {
-    public static boolean canJump(int[] nums) {
+public class JumpingDP implements Jumping {
+    public boolean canJump(int[] nums) {
         return minJumps(nums) != Integer.MAX_VALUE;
     }
 
-    public static int minJumps(int[] arr) {
+    public int minJumps(int[] arr) {
         int n = arr.length;
-        int minCostToIdx[] = new int[n];
-        // result
+        int[] minCostToIdx = new int[n];
         int i, j;
 
-        // if first element is 0,
         if (n == 0 || arr[0] == 0)
             return Integer.MAX_VALUE;
 

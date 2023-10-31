@@ -61,7 +61,7 @@ public class ConstraintSatisfactionProblemTest {
 		Map<Integer, Integer> solution = csp.backtrackingSearch();
         
         assertEquals(8, solution.size(), "solution found!");
-        System.out.println(solution);//preview
+        //System.out.println(solution);//preview
     }    
 }
 

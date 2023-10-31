@@ -1,13 +1,13 @@
 package hoa.can.code.gg;
 
-public class JumpingGreedily {
+public class JumpingGreedily implements Jumping {
     final static int NO_WAY = 10000;
 
-    public static boolean canJump(int[] nums) {
+    public boolean canJump(int[] nums) {
         return minJumps(nums) != NO_WAY;
     }
 
-    public static int minJumps(int[] nums) {
+    public int minJumps(int[] nums) {
         int n = nums.length;
         if (n <= 1) {
             return 0;
