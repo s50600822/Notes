@@ -45,7 +45,7 @@ public class ConstraintSatisfactionProblemTest {
         Map<String, String> solution = csp.backtrackingSearch();
 
         assertEquals(territories.size(), solution.size(), "solution found!");
-        System.out.println(solution);//preview
+        //System.out.println(solution);//preview
     }
 
     @Test
