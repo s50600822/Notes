@@ -66,4 +66,20 @@ jobs:
         run: |
           cd interview_prep/algorithm/ts
           npm i -D typescript jest ts-jest @types/jest
-          npm test       
+          npm test
+
+  kotlin-tests:
+    name: Kotlin tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: 'corretto'
+      - name: Build and test Kotlin
+        run: |
+          cd interview_prep/algorithm/Kotlin
+          ./gradlew test     
