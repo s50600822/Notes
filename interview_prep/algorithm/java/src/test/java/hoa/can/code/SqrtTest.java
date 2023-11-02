@@ -9,7 +9,7 @@ public class SqrtTest {
     Sqrt sol = new Sqrt();
 
     @Test
-    public void test() {
+    public void test    () {
         assertEquals(1, sol.sqrt(1));
         assertEquals(2, sol.sqrt(4));
         assertEquals(3, sol.sqrt(9));

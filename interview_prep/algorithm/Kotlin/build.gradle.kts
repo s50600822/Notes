@@ -4,6 +4,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     kotlin("jvm") version "1.9.0"
     application
+    `jvm-test-suite`
 }
 
 group = "hoa.can.code"

@@ -82,4 +82,4 @@ jobs:
       - name: Build and test Kotlin
         run: |
           cd interview_prep/algorithm/Kotlin
-          ./gradlew test --warning-mode all
+          ./gradlew test -i --warning-mode all
