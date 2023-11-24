@@ -1,4 +1,6 @@
 import java.util.Arrays;
+import java.io.*;
+
 
 class Solution {
     /**
@@ -53,5 +55,40 @@ class Solution {
             self.productExceptSelf(new int[]{2,3,4,5}),
             new int[]{60,40, 30,24}
         );
+
+        int[] huge = readArrayFromFile("i.txt");
+
+
+        writeArrayToFile(self.productExceptSelf(huge), "huge_out.txt");
+    }
+
+    private static int[] readArrayFromFile(String filePath) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line = reader.readLine();
+            String[] elements = line.split(",");
+            int[] array = new int[elements.length];
+            for (int i = 0; i < elements.length; i++) {
+                array[i] = Integer.parseInt(elements[i]);
+            }
+            return array;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new int[0]; // Handle the error according to your needs
+        }
+    }
+
+    private static void writeArrayToFile(int[] array, String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (int i = 0; i < array.length; i++) {
+                writer.write(String.valueOf(array[i]));
+
+                // Add a comma after each element except the last one
+                if (i < array.length - 1) {
+                    writer.write(",");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
