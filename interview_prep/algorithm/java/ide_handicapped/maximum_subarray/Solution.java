@@ -16,6 +16,7 @@ class Solution {
         int max = nums[0];
 
         for(int i=1; i<nums.length; i++){
+            // keep accumuate or start over at i
             currentSum = Math.max(currentSum+nums[i], nums[i]);
             // keep existing or update with accumulate sum
             max = Math.max(max, currentSum);
