@@ -1,14 +1,14 @@
 class Solution {
     /**
-     * The key insight here is 
-     * the dynamic programming step 
-     * where the algorithm calculates 
-     * the maximum subarray sum ending at each position. 
-     * 
-     * By updating and keeping track of 
-     * the current sum  and 
-     * the overall maximum during the iteration, 
-     * the algorithm efficiently finds the maximum subarray sum 
+     * The key insight here is
+     * the dynamic programming step
+     * where the algorithm calculates
+     * the maximum subarray sum ending at each position.
+     *
+     * By updating and keeping track of
+     * the current sum  and
+     * the overall maximum during the iteration,
+     * the algorithm efficiently finds the maximum subarray sum
      * in a single pass through the array.
      */
     public int maxSubArray(int[] nums) {
@@ -25,6 +25,7 @@ class Solution {
     }
 
     public static void main(String[] args) {
+        //https://leetcode.com/problems/maximum-subarray/description/
         Solution self = new Solution();
         assert self.maxSubArray(new int[]{-2,1,-3,4,-1,2,1,-5,4}) == 6;
         assert self.maxSubArray(new int[]{5,4,-1,7,8}) == 23;
