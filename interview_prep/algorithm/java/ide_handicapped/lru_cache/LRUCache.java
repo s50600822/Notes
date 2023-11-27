@@ -61,6 +61,7 @@ class LRUCache {
     }
 
     public static void main(String[] args) {
+        //https://leetcode.com/problems/lru-cache
         LRUCache cache = new LRUCache(5);
         cache.put(1, 1);
         cache.put(2, 2);
