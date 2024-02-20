@@ -1,4 +1,9 @@
 class Solution {
+    /**
+     * n == height.length
+     * 2 <= n <= 105
+     * 0 <= height[i] <= 104
+     */
     public int maxArea(int[] h) {
         int a=0;
         int l = 0, r = h.length-1;
@@ -25,5 +30,17 @@ class Solution {
         Solution self = new Solution();
         assert self.maxArea(new int[]{1,8,6,2,5,4,8,3,7}) == 49;
         assert self.maxArea(new int[]{1,1}) == 1;
+        assert self.maxArea(new int[]{}) == 0;
+        assert self.maxArea(new int[]{1}) == 0;
+        assert self.maxArea(new int[]{1, 2}) == 1;
+        assert self.maxArea(new int[]{1, 2, 3, 4, 5}) == 6;
+        assert self.maxArea(new int[]{5, 4, 3, 2, 1}) == 6;
+        assert self.maxArea(new int[]{3, 3, 3, 3}) == 9;
+        assert self.maxArea(new int[]{104, 104}) == 104;
+        assert self.maxArea(new int[]{2, 2, 1, 2, 2}) == 8;
+        assert self.maxArea(new int[]{2, 1, 5, 2, 1}) == 6;
+        assert self.maxArea(new int[]{5, 1, 2, 3, 4}) == 16;
+        assert self.maxArea(new int[]{1, 2, 3, 4, 5}) == 6;
+        assert self.maxArea(new int[]{1, 5, 2, 3, 4}) == 12;
     }
 }
