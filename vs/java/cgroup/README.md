@@ -27,7 +27,7 @@ Available Memory (Free): 242 MB
 Maximum Memory (Allocated): 245 MB
 Total System Memory: 7940 MB
 
-# GOOD, since JDK 11
+# GOOD, since JDK 11.  Also mentioned in https://kubernetes.io/docs/concepts/architecture/cgroups/
 ./runWithDocker.sh
 Available Processor Count: 2
 Available Memory (Total): 247 MB
@@ -39,7 +39,7 @@ Total System Memory: 512 MB
 
 ### Try all JDK versions if curious
 ```bash
-# BAD 
+# BAD
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk8 -v .:/app openjdk:8  java -Xmx256m -Xms256m  -jar /app/application.jar
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk9 -v .:/app openjdk:9  java -Xmx256m -Xms256m  -jar /app/application.jar
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk10 -v .:/app openjdk:10  java -Xmx256m -Xms256m  -jar /app/application.jar
@@ -51,21 +51,21 @@ docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk17 -v .:/ap
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk21 -v .:/app openjdk:21  java -Xmx256m -Xms256m  -jar /app/application.jar
 ```
 
-while openjdk stop publishing jdk 8 images after 
-```bash 
+while openjdk stop publishing jdk 8 images after
+```bash
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk9  -v .:/app openjdk:8  java -version
 openjdk version "1.8.0_342"
 OpenJDK Runtime Environment (build 1.8.0_342-b07)
 OpenJDK 64-Bit Server VM (build 25.342-b07, mixed mode)
 ```
 
-Fixes continues to be ported into jdk8 later builds and distributor like Amazon continue to publish new imgs with fixes 
+Fixes continues to be ported into jdk8 later builds and distributor like Amazon continue to publish new imgs with fixes
 ```bash
 # BAD still
 docker run --rm --cpus=2 --memory=512m --name amazoncorretto8u352 -v .:/app amazoncorretto:8u352 java -Xmx256m -Xms256m  -jar /app/application.jar
 docker run --rm --cpus=2 --memory=512m --name amazoncorretto8u362 -v .:/app amazoncorretto:8u362  java -Xmx256m -Xms256m  -jar /app/application.jar
 
-# GOOD 
+# GOOD
 docker run --rm --cpus=2 --memory=512m --name amazoncorretto8u372 -v .:/app amazoncorretto:8u372  java -Xmx256m -Xms256m  -jar /app/application.jar
 docker run --rm --cpus=2 --memory=512m --name amazoncorretto8u382 -v .:/app amazoncorretto:8u382  java -Xmx256m -Xms256m  -jar /app/application.jar
 docker run --rm --cpus=2 --memory=512m --name amazoncorretto8u402 -v .:/app amazoncorretto:8u402  java -Xmx256m -Xms256m  -jar /app/application.jar
@@ -157,4 +157,13 @@ Total System Memory: 7941 MB
 
 
 ### See also
+
 https://github.com/s50600822/Notes/wiki/Cgroup
+
+https://kubernetes.io/docs/concepts/architecture/cgroups/
+
+https://github.com/containerd/cgroups
+
+https://github.com/KimMachineGun/automemlimit
+
+https://github.com/google/cadvisor
