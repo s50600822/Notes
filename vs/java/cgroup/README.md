@@ -154,3 +154,7 @@ Available Memory (Total): 7941 MB
 Available Memory (Free): 5927 MB
 Total System Memory: 7941 MB
 ```
+
+
+### See also
+https://github.com/s50600822/Notes/wiki/Cgroup
