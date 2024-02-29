@@ -37,15 +37,120 @@ Total System Memory: 512 MB
 ```
 
 
-# try all if curious
+### Try all JDK versions if curious
 ```bash
 # BAD 
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk8 -v .:/app openjdk:8  java -Xmx256m -Xms256m  -jar /app/application.jar
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk9 -v .:/app openjdk:9  java -Xmx256m -Xms256m  -jar /app/application.jar
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk10 -v .:/app openjdk:10  java -Xmx256m -Xms256m  -jar /app/application.jar
+
 # GOOD
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk11 -v .:/app openjdk:11  java -Xmx256m -Xms256m  -jar /app/application.jar
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk16 -v .:/app openjdk:16  java -Xmx256m -Xms256m  -jar /app/application.jar
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk17 -v .:/app openjdk:17  java -Xmx256m -Xms256m  -jar /app/application.jar
 docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk21 -v .:/app openjdk:21  java -Xmx256m -Xms256m  -jar /app/application.jar
+```
+
+while openjdk stop publishing jdk 8 images after 
+```bash 
+docker run --rm --cpus=2 --memory=512m --name jvm_cgroup_demo_openjdk9  -v .:/app openjdk:8  java -version
+openjdk version "1.8.0_342"
+OpenJDK Runtime Environment (build 1.8.0_342-b07)
+OpenJDK 64-Bit Server VM (build 25.342-b07, mixed mode)
+```
+
+Fixes continues to be ported into jdk8 later builds and distributor like Amazon continue to publish new imgs with fixes 
+```bash
+# BAD still
+docker run --rm --cpus=2 --memory=512m --name amazoncorretto8u352 -v .:/app amazoncorretto:8u352 java -Xmx256m -Xms256m  -jar /app/application.jar
+docker run --rm --cpus=2 --memory=512m --name amazoncorretto8u362 -v .:/app amazoncorretto:8u362  java -Xmx256m -Xms256m  -jar /app/application.jar
+
+# GOOD 
+docker run --rm --cpus=2 --memory=512m --name amazoncorretto8u372 -v .:/app amazoncorretto:8u372  java -Xmx256m -Xms256m  -jar /app/application.jar
+docker run --rm --cpus=2 --memory=512m --name amazoncorretto8u382 -v .:/app amazoncorretto:8u382  java -Xmx256m -Xms256m  -jar /app/application.jar
+docker run --rm --cpus=2 --memory=512m --name amazoncorretto8u402 -v .:/app amazoncorretto:8u402  java -Xmx256m -Xms256m  -jar /app/application.jar
+```
+
+
+## Other languages
+### golang
+```go
+//sys.go
+package main
+
+import (
+	"fmt"
+	"runtime"
+
+	"github.com/shirou/gopsutil/mem"
+)
+
+func main() {
+	availableProcessors := runtime.NumCPU()
+	fmt.Println("Available Processor Count:", availableProcessors)
+	memInfo, err := mem.VirtualMemory()
+	if err != nil {
+		panic(err)
+	}
+	totalMemoryMB := memInfo.Total / 1024 / 1024
+	freeMemoryMB := memInfo.Free / 1024 / 1024
+	fmt.Println("Available Memory (Total):", totalMemoryMB, "MB")
+	fmt.Println("Available Memory (Free):", freeMemoryMB, "MB")
+}
+
+
+```
+
+to build
+
+```bash
+go mod init sys
+go get github.com/shirou/gopsutil/mem
+go build sys.go
+go run sys.go
+Available Processor Count: 10
+Available Memory (Total): 32768 MB
+Available Memory (Free): 142 MB
+```
+
+
+does not honor cgroup, notice that `Available Processor Count` and `Available Memory` are exactly like running directly on host/node. The same actually goes for `Available Memory`, it slightly fluctuates around that value when you run again and again on the host or inside the container.
+```bash
+docker run --cpus=2 --memory=512m --rm -v .:/app -w /app golang:1.22.0  go build && go run sys.go
+
+go: downloading github.com/shirou/gopsutil v3.21.11+incompatible
+go: downloading golang.org/x/sys v0.17.0
+Available Processor Count: 10
+Available Memory (Total): 32768 MB
+Available Memory (Free): 199 MB
+```
+
+
+### Node
+```javascript
+// sys.js
+const os = require('os');
+
+const availableProcessors = os.cpus().length;
+console.log("Available Processor Count: " + availableProcessors);
+
+const totalMemoryMB = Math.round(os.totalmem() / (1024 * 1024));
+const freeMemoryMB = Math.round(os.freemem() / (1024 * 1024));
+console.log("Available Memory (Total): " + totalMemoryMB + " MB");
+console.log("Available Memory (Free): " + freeMemoryMB + " MB");
+
+
+const totalSystemMemoryMB = Math.round(os.totalmem() / (1024 * 1024));
+console.log("Total System Memory: " + totalSystemMemoryMB + " MB");
+
+```
+
+does not honor cgroup
+```bash
+docker run --rm --cpus=2 --memory=512m -v ./:/usr/src/app -w /usr/src/app node:21.6.2-slim node sys.js
+
+Available Processor Count: 10
+Available Memory (Total): 7941 MB
+Available Memory (Free): 5927 MB
+Total System Memory: 7941 MB
 ```
