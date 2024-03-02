@@ -225,3 +225,5 @@ https://github.com/containerd/cgroups
 https://github.com/KimMachineGun/automemlimit
 
 https://github.com/google/cadvisor
+
+https://github.com/kubernetes/kubernetes/commit/4e20a8f52bcce054459f4df537c12e889a02b86c

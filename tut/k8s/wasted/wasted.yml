@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-usage-deployment
+  namespace: musage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: memory-usage
+  template:
+    metadata:
+      labels:
+        app: memory-usage
+    spec:
+      containers:
+        - name: memory-usage-container
+          image: s50600822/memory-usage:node
+          resources:
+            limits:
+            # See wat happens.
+            # wasted.js will continue to scale the mem usage: +50MiB/sec for 5 mins
+              memory: "100Mi"
