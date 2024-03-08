@@ -42,6 +42,7 @@ class Solution {
     }
 
     public static void main(String[] args) {
+        //https://leetcode.com/problems/substring-with-concatenation-of-all-words/description/
         List<Integer> expected = List.of(0,9);
         List<Integer> actual  = findSubString("barfoothefoobarman", new String[]{"foo","bar"});
         assert actual.size()==expected.size();
