@@ -227,3 +227,5 @@ https://github.com/KimMachineGun/automemlimit
 https://github.com/google/cadvisor
 
 https://github.com/kubernetes/kubernetes/commit/4e20a8f52bcce054459f4df537c12e889a02b86c
+
+https://github.com/kubernetes/kubernetes/blob/3ec6a387955b1240ad6d795663513f1ee12ceaec/pkg/kubelet/kuberuntime/helpers.go#L159
