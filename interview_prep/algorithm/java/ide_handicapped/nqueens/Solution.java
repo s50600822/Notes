@@ -78,20 +78,6 @@ class Solution {
         return solution;
     }
 
-    public static void main(String[] args) {
-        //https://leetcode.com/problems/n-queens/
-        int boardSize = 15;
-        final Solution solution = new Solution();
-        final List<List<String>> solutions = solution.solveNQueens(boardSize);
-
-        // for (List<String> solutionBoard : solutions) {
-        //     for (String row : solutionBoard) {
-        //         System.out.println(row);
-        //     }
-        //     System.out.println();
-        // }
-    }
-
     private int[][] newEmptyBoard(int size){
         int[][] grid = new int[size][size];
         result = new ArrayList<>();
