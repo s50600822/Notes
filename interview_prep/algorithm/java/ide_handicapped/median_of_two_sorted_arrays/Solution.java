@@ -20,7 +20,7 @@ class Solution {
         while(l2idx < l2){
             merged[midx++] =  nums2[l2idx++];
         }
-        int mid = (l1+l2)/2;
+        int mid = (l1+l2)/2; // see also https://github.com/s50600822/Notes/blob/main/vs/java/bitshift/README.md
         if((l1+l2)%2==0) return (double)(merged[mid -1] + merged[mid]) / 2;
         return  merged[mid];
     }

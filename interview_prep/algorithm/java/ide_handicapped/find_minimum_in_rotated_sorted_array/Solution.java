@@ -6,7 +6,7 @@ class Solution {
         if (n[0] < n[n.length - 1]) return n[0];
         int l = 0, r = n.length -1;
         while (l<=r) {
-            int mid = l + (r-l)/2;
+            int mid = l + (r-l)/2;// see also https://github.com/s50600822/Notes/blob/main/vs/java/bitshift/README.md
             if(n[mid] > n[mid+1]) return n[mid+1];
             if(n[mid-1] < n[mid]) return n[mid];
             if(n[l]<n[mid]){
