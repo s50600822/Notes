@@ -1,0 +1,60 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    allow-snippet-annotations: "false"
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","data":{"allow-snippet-annotations":"false"},"kind":"ConfigMap","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"controller","app.kubernetes.io/instance":"ingress-nginx","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"ingress-nginx","app.kubernetes.io/part-of":"ingress-nginx","app.kubernetes.io/version":"1.10.0","helm.sh/chart":"ingress-nginx-4.10.0"},"name":"ingress-nginx-controller","namespace":"ingress-nginx"}}
+    creationTimestamp: "2024-03-13T14:44:33Z"
+    labels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: ingress-nginx
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: ingress-nginx
+      app.kubernetes.io/part-of: ingress-nginx
+      app.kubernetes.io/version: 1.10.0
+      helm.sh/chart: ingress-nginx-4.10.0
+    name: ingress-nginx-controller
+    namespace: ingress-nginx
+    resourceVersion: "143334"
+    uid: f9cc1b58-8e25-4f57-8fc5-6b189b9e2f0e
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIDBTCCAe2gAwIBAgIIe5ElpERcitIwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE
+      AxMKa3ViZXJuZXRlczAeFw0yNDAyMDcyMTA5NDRaFw0zNDAyMDQyMTE0NDRaMBUx
+      EzARBgNVBAMTCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+      AoIBAQCxeC3lFm5pGuejuf4qbNA97wGGYUhiJTCcK/gD1V0Vcala6A3pefa0CqQH
+      4bx4bHbwnhCvDDlXBsorPCLyqU6aUSCDR4HiQEari2hfBQOgNSn/fMLt3JORaVKq
+      Ef1LVt/vgWPGL0uUQ4NfQMZNbMCQPnExJuDDd1ffJXnJ7JkrfH46wTBVb6npwxBT
+      oK6VeiI30zLjyHGrW7epO49NUQeGueaDm8J6vRol8SYfoxIP7mLKoGj+txKC78l1
+      +Y1pJ+LGykpeq8jeyCNj1Y6GIe9npY+J3dR2aOdyws2gzYm/WdZbuhXinfDJTzt8
+      Wi3xOyF47iiJtLjWW3XVkC2PumoLAgMBAAGjWTBXMA4GA1UdDwEB/wQEAwICpDAP
+      BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQ5XHN0JzB0G9RI/9rSq4FvOX8GoTAV
+      BgNVHREEDjAMggprdWJlcm5ldGVzMA0GCSqGSIb3DQEBCwUAA4IBAQAJq7EqVbN6
+      ItTITvZDo+7WvFjtPAdZ0j0snKtwoVwYCd5ks3fsh2+5L+6GLRLOOPhIzD6F7/18
+      RTrY+qrSZiGk2PUVdfBECcAYHV+lvkq6OpLVZsrfPBD2wIPYGp2baeLLeIPXaLYe
+      BZ/+M7r94+XRTonpeJkMJyedUlHrfOtReokI7OgVkDEEHnbDUSu01zFagRG7Tcyc
+      VvYKrk9PTi/vD+QIPLpX3RnZ5OxvSkQ8u/PXgjfjvCxd4Vvh5UqeQLHPDQST/qyA
+      MQMo0pI+oQATtIP4KAAsv7Ub15hVFhcjnlyQs3zMchuqgLEOq3K/pkieIP5JINTr
+      xt1PafI3UBuB
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2024-03-13T14:44:28Z"
+    name: kube-root-ca.crt
+    namespace: ingress-nginx
+    resourceVersion: "143327"
+    uid: 6eca69a8-3266-4486-a8c2-d30e100c0642
+kind: List
+metadata:
+  resourceVersion: ""
