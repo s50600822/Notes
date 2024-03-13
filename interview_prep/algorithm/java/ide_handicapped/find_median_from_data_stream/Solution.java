@@ -1,7 +1,7 @@
 class Solution {
     static class MedianFinder {
 
-        public final int RANGE = 100_001;
+        public final int RANGE = 100010;
         public int[] buckets = new int[RANGE * 2];
         public int midIndex = -1;
         public int midPos = -1;
@@ -9,16 +9,18 @@ class Solution {
         public int rightSize = 0;
 
         public void addNum(int num) {
-            //-100 000 <= num <= 100 000
+            //-100_000 <= num <= 100_000
             // positive
-            buckets[num + RANGE] ++;
+            // at most 50_000 invo
+            int idx = num + RANGE;
+            buckets[idx] ++;
             if(midIndex == -1) {
-                midIndex = num + RANGE;
+                midIndex = idx;
             }
-            if(num + RANGE == midIndex) {
+            if(idx == midIndex) {
                 leftSize ++;
                 midPos ++;
-            } else if(num + RANGE < midIndex){
+            } else if(idx < midIndex){
                 leftSize ++;
             } else {
                 rightSize ++;
@@ -33,6 +35,7 @@ class Solution {
                 rightSize --;
             }
         }
+
 
         public void moveMid(boolean toLeft) {
             if(toLeft) {
@@ -60,6 +63,7 @@ class Solution {
             return i;
         }
 
+
         public double findMedian() {
             double mid = (double) midIndex - RANGE;
             if((leftSize + rightSize) % 2 == 0) {
@@ -71,10 +75,14 @@ class Solution {
         }
 
     }
-
     public static void main(String[] args) {
+        //https://leetcode.com/problems/find-median-from-data-stream/description/
         t1();
         t2();
+        t3();
+        t4();
+        // If all integer numbers from the stream are in the range [0, 100] => reduce RANGE
+        // If 99% of all integer numbers from the stream are in the range [0, 100] => no need to buffer x RANGE
     }
 
     public static void t1(){
@@ -89,15 +97,22 @@ class Solution {
 
     public static void t2() {
         MedianFinder mf = new MedianFinder();
+        for (int i = 0; i < 10000; i++) mf.addNum(104);
+        System.out.println("t2 Median : " + mf.findMedian());
+        assert mf.findMedian() == 104;
+    }
 
-        // Add many elements close to the positive limit (104)
-        for (int i = 0; i < 10000; i++) {
-            mf.addNum(104);
-        }
+    public static void t3() {
+        MedianFinder mf = new MedianFinder();
+        for (int i = 0; i < 50_000; i++) mf.addNum(100_000);
+        System.out.println("t3 Median : " + mf.findMedian());
+        assert mf.findMedian() == 100_000;
+    }
 
-        // Add an unexpected element exceeding the buffer
-        mf.addNum(200);
-        // Try to find the median (might not be accurate)
-        System.out.println("Median after adding unexpected element: " + mf.findMedian());
+    public static void t4() {
+        MedianFinder mf = new MedianFinder();
+        for (int i = 0; i < 50_000; i++) mf.addNum(-100_000);
+        System.out.println("t3 Median : " + mf.findMedian());
+        assert mf.findMedian() == -100_000;
     }
 }
