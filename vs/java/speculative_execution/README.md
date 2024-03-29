@@ -93,3 +93,138 @@ Time taken for unsorted array: 1949875 nanoseconds
 Time taken for sorted array: 2254917 nanoseconds
 Time taken for unsorted array: 3331500 nanoseconds
 ```
+
+
+### JS
+```javascript
+const length = 1000000;
+
+function main() {
+    const sortedArray = Array.from({ length }, (_, i) => i);
+    const unsortedArray = Array.from({ length }, (_, i) => i);
+    shuffleArray(unsortedArray);
+
+    const startTimeUnsorted = performance.now();
+    touch(unsortedArray);
+    const durationUnsorted = performance.now() - startTimeUnsorted;
+
+    const startTimeSorted = performance.now();
+    touch(sortedArray);
+    const durationSorted = performance.now() - startTimeSorted;
+
+    console.log("Time taken for sorted array:", durationSorted);
+    console.log("Time taken for unsorted array:", durationUnsorted);
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function touch(arr) {
+    for (let p = 0; p < arr.length; p++) {
+        arr[p]++;
+    }
+}
+
+main();
+```
+
+### Go
+
+```go
+use std::time::{SystemTime};
+
+const LENGTH: usize = 1000000;
+
+fn main() {
+    let mut sorted_array = vec![0; LENGTH];
+    for i in 0..LENGTH {
+        sorted_array[i] = i as i32;
+    }
+
+    let mut unsorted_array = vec![0; LENGTH];
+    for i in 0..LENGTH {
+        unsorted_array[i] = i as i32;
+    }
+    shuffle_array(&mut unsorted_array);
+
+    let start_time = SystemTime::now();
+    touch(&mut sorted_array);
+    let duration_sorted = start_time.elapsed().unwrap().as_nanos();
+
+    let start_time = SystemTime::now();
+    touch(&mut unsorted_array);
+    let duration_unsorted = start_time.elapsed().unwrap().as_nanos();
+
+    println!("Time taken for sorted array: {} nanoseconds", duration_sorted);
+    println!("Time taken for unsorted array: {} nanoseconds", duration_unsorted);
+}
+
+fn shuffle_array(array: &mut [i32]) {
+    let mut rng = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos() as u64;
+
+    for i in (0..array.len()).rev() {
+        let j = (rng % (i as u64 + 1)) as usize;
+        rng = rng.wrapping_mul(6364136223846793005).wrapping_add(1);
+        array.swap(i, j);
+    }
+}
+
+fn touch(arr: &mut [i32]) {
+    for p in arr.iter_mut() {
+        *p += 1;
+    }
+}
+
+```
+
+### Rust
+
+```rust
+use std::time::{SystemTime};
+
+const LENGTH: usize = 1000000;
+
+fn main() {
+    let mut sorted_array = vec![0; LENGTH];
+    for i in 0..LENGTH {
+        sorted_array[i] = i as i32;
+    }
+
+    let mut unsorted_array = vec![0; LENGTH];
+    for i in 0..LENGTH {
+        unsorted_array[i] = i as i32;
+    }
+    shuffle_array(&mut unsorted_array);
+
+    let start_time = SystemTime::now();
+    touch(&mut sorted_array);
+    let duration_sorted = start_time.elapsed().unwrap().as_nanos();
+
+    let start_time = SystemTime::now();
+    touch(&mut unsorted_array);
+    let duration_unsorted = start_time.elapsed().unwrap().as_nanos();
+
+    println!("Time taken for sorted array: {} nanoseconds", duration_sorted);
+    println!("Time taken for unsorted array: {} nanoseconds", duration_unsorted);
+}
+
+fn shuffle_array(array: &mut [i32]) {
+    let mut rng = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos() as u64;
+
+    for i in (0..array.len()).rev() {
+        let j = (rng % (i as u64 + 1)) as usize;
+        rng = rng.wrapping_mul(6364136223846793005).wrapping_add(1);
+        array.swap(i, j);
+    }
+}
+
+fn touch(arr: &mut [i32]) {
+    for p in arr.iter_mut() {
+        *p += 1;
+    }
+}
+```
