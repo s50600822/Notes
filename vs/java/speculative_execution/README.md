@@ -228,3 +228,91 @@ fn touch(arr: &mut [i32]) {
     }
 }
 ```
+
+
+### C#
+```bash
+dotnet new console
+code .
+```
+
+```csharp
+namespace MyApp
+{
+    internal class Program
+    {
+        const int LENGTH = 1000000;
+
+        public static void Main(string[] args)
+        {
+            int[] sortedArray = new int[LENGTH];
+            for (int i = 0; i < LENGTH; i++)
+            {
+                sortedArray[i] = i;
+            }
+
+            int[] unsortedArray = new int[LENGTH];
+            for (int i = 0; i < LENGTH; i++)
+            {
+                unsortedArray[i] = i;
+            }
+            ShuffleArray(unsortedArray);
+
+            long startTime = DateTime.Now.Ticks;
+            Touch(sortedArray);
+            long endTime = DateTime.Now.Ticks;
+            long durationSorted = endTime - startTime;
+
+            startTime = DateTime.Now.Ticks;
+            Touch(unsortedArray);
+            endTime = DateTime.Now.Ticks;
+            long durationUnsorted = endTime - startTime;
+
+            Console.WriteLine("Time taken for sorted array: " + durationSorted + " ticks");
+            Console.WriteLine("Time taken for unsorted array: " + durationUnsorted + " ticks");
+        }
+
+        /**
+         * Fisher-Yates shuffle algorithm
+         */
+        private static void ShuffleArray(int[] array)
+        {
+            Random rng = new Random();
+            int n = array.Length;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                int temp = array[k];
+                array[k] = array[n];
+                array[n] = temp;
+            }
+        }
+
+        private static void Touch(int[] arr)
+        {
+            for (int p = 0; p < arr.Length; p++)
+            {
+                arr[p]++;
+            }
+        }
+    }
+}
+```
+
+
+```bash
+dotnet build && dotnet run
+MSBuild version 17.5.1+f6fdcf537 for .NET
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  csharp -> /Users/hoaphan/dev/csharp/bin/Debug/net7.0/csharp.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.53
+Time taken for sorted array: 158330 ticks
+Time taken for unsorted array: 14360 ticks
+```
