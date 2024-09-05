@@ -18,9 +18,16 @@ jobs:
         curl -o tomcat.zip https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.93/bin/apache-tomcat-9.0.93.zip
         Expand-Archive -Path tomcat.zip -DestinationPath tomcat
 
+    - name: Check current directory
+      run: |
+        echo "Current Directory:"
+        pwd
+        echo "Directory Contents:"
+        dir
+
     - name: Start Tomcat
       run: |
-        ./tomcat/apache-tomcat-9.0.90/bin/startup.bat
+        tomcat\apache-tomcat-9.0.90\bin\startup.bat
       shell: cmd
 
     - name: Wait for 10 seconds
