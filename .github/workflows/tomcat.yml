@@ -16,12 +16,11 @@ jobs:
     - name: Download Apache Tomcat 9.0.90
       run: |
         curl -o tomcat.zip https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.90/bin/apache-tomcat-9.0.90-windows-x64.zip
-        tar -xf tomcat.zip
-        mv apache-tomcat-9.0.90 tomcat
+        Expand-Archive -Path tomcat.zip -DestinationPath tomcat
 
     - name: Start Tomcat
       run: |
-        ./tomcat/bin/startup.bat
+        ./tomcat/apache-tomcat-9.0.90/bin/startup.bat
       shell: cmd
 
     - name: Wait for 10 seconds
