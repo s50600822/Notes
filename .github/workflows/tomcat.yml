@@ -24,7 +24,9 @@ jobs:
         pwd
         echo "Directory Contents:"
         dir
-
+        echo "Tomcat Directory Content:"
+        dir -Recurse -Path tomcat
+        
     - name: Start Tomcat
       run: |
         tomcat\apache-tomcat-9.0.90\bin\startup.bat
