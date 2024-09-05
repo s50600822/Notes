@@ -29,7 +29,7 @@ jobs:
         
     - name: Start Tomcat
       run: |
-        tomcat\apache-tomcat-9.0.90\bin\startup.bat
+        tomcat\apache-tomcat-9.0.93\bin\startup.bat
       shell: cmd
 
     - name: Wait for 10 seconds
